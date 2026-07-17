@@ -7,7 +7,7 @@
 <title>Rodrigo Cabrera · Arquitecto</title>
 <meta name="description" content="Rodrigo Cabrera, arquitecto. Proyecta y construye espacios residenciales en México donde la piedra, la madera y la luz conviven. Fundador de ARCO Arquitectura & Construcción.">
 <link rel="icon" href="assets/img/favicon.png">
-<link rel="stylesheet" href="assets/css/style.css?v=2">
+<link rel="stylesheet" href="assets/css/style.css?v=3">
 </head>
 <body class="loading">
 
@@ -28,6 +28,72 @@
 <div class="cursor" aria-hidden="true"></div>
 <div class="cursor-dot" aria-hidden="true"></div>
 <span class="cursor__label" aria-hidden="true"></span>
+
+<!-- ============ FONDO GLOBAL: PLANO ANIMADO ============ -->
+<div class="bg-plan" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+    <!-- muros exteriores -->
+    <g class="bgp bgp--1">
+      <path pathLength="1" d="M180 140 H1180 V800 H180 Z" stroke-width="1.7" />
+      <path pathLength="1" d="M194 154 H1166 V786 H194 Z" />
+    </g>
+    <!-- muros interiores y puertas -->
+    <g class="bgp bgp--2">
+      <path pathLength="1" d="M620 154 V400 M634 154 V400 M620 400 H634" />
+      <path pathLength="1" d="M194 520 H450 M194 534 H450 M450 520 V534" />
+      <path pathLength="1" d="M900 786 V560 M914 786 V560 M900 560 H914" />
+      <path pathLength="1" d="M620 520 H1166 M620 534 H780 M860 534 H1166" />
+      <path pathLength="1" d="M620 440 V520 M634 440 V520" />
+      <path pathLength="1" d="M634 460 A42 42 0 0 1 676 418" />
+      <path pathLength="1" d="M480 520 H450 M480 520 A38 38 0 0 0 442 482" />
+      <path pathLength="1" d="M860 534 A52 52 0 0 1 808 586" />
+      <path pathLength="1" d="M960 786 H1030 M960 786 A70 70 0 0 1 1030 716" />
+    </g>
+    <!-- ventanas y mobiliario -->
+    <g class="bgp bgp--3">
+      <line pathLength="1" x1="300" y1="147" x2="520" y2="147" stroke-width="2.4" />
+      <line pathLength="1" x1="700" y1="147" x2="980" y2="147" stroke-width="2.4" />
+      <line pathLength="1" x1="1173" y1="240" x2="1173" y2="420" stroke-width="2.4" />
+      <line pathLength="1" x1="1173" y1="580" x2="1173" y2="720" stroke-width="2.4" />
+      <line pathLength="1" x1="187" y1="600" x2="187" y2="740" stroke-width="2.4" />
+      <rect pathLength="1" x="260" y="220" width="240" height="150" rx="4" />
+      <line pathLength="1" x1="260" y1="258" x2="500" y2="258" />
+      <rect pathLength="1" x="720" y="220" width="190" height="90" rx="45" />
+      <circle pathLength="1" cx="815" cy="265" r="27" />
+      <rect pathLength="1" x="960" y="580" width="170" height="140" rx="4" />
+      <circle pathLength="1" cx="330" cy="660" r="46" />
+      <line pathLength="1" x1="330" y1="614" x2="330" y2="706" />
+      <line pathLength="1" x1="284" y1="660" x2="376" y2="660" />
+      <rect pathLength="1" x="1000" y="180" width="130" height="52" />
+    </g>
+    <!-- ejes, cotas y textos -->
+    <g class="bgp bgp--4">
+      <line pathLength="1" x1="620" y1="80" x2="620" y2="860" opacity=".5" />
+      <line pathLength="1" x1="100" y1="520" x2="1340" y2="520" opacity=".5" />
+      <circle pathLength="1" cx="620" cy="80" r="17" />
+      <circle pathLength="1" cx="100" cy="520" r="17" />
+      <text x="620" y="85">B</text>
+      <text x="100" y="525">2</text>
+      <line pathLength="1" x1="180" y1="840" x2="1180" y2="840" />
+      <line pathLength="1" x1="180" y1="830" x2="180" y2="850" />
+      <line pathLength="1" x1="620" y1="830" x2="620" y2="850" />
+      <line pathLength="1" x1="1180" y1="830" x2="1180" y2="850" />
+      <text x="400" y="833">11.00</text>
+      <text x="900" y="833">14.00</text>
+      <line pathLength="1" x1="1250" y1="140" x2="1250" y2="800" />
+      <line pathLength="1" x1="1240" y1="140" x2="1260" y2="140" />
+      <line pathLength="1" x1="1240" y1="800" x2="1260" y2="800" />
+      <text x="1280" y="470">16.50</text>
+    </g>
+    <!-- brújula (gira sola) -->
+    <g class="bg-compass">
+      <circle cx="1310" cy="108" r="34" />
+      <circle cx="1310" cy="108" r="3" />
+      <path d="M1310 134 L1310 82 L1297 118 L1310 110 L1323 118 Z" />
+    </g>
+  </svg>
+  <i class="bg-scan"></i>
+</div>
 
 <!-- ============ HEADER ============ -->
 <header class="site-header">
@@ -66,12 +132,12 @@
       <circle class="thin" data-draw cx="75" cy="120" r="14" />
       <circle class="thin" data-draw cx="75" cy="390" r="14" />
       <circle class="thin" data-draw cx="75" cy="620" r="14" />
-      <text x="150" y="49" fill="#1f5f8b" opacity=".55" font-size="12" text-anchor="middle">A</text>
-      <text x="450" y="49" fill="#1f5f8b" opacity=".55" font-size="12" text-anchor="middle">B</text>
-      <text x="740" y="49" fill="#1f5f8b" opacity=".55" font-size="12" text-anchor="middle">C</text>
-      <text x="75" y="124" fill="#1f5f8b" opacity=".55" font-size="12" text-anchor="middle">1</text>
-      <text x="75" y="394" fill="#1f5f8b" opacity=".55" font-size="12" text-anchor="middle">2</text>
-      <text x="75" y="624" fill="#1f5f8b" opacity=".55" font-size="12" text-anchor="middle">3</text>
+      <text x="150" y="49" fill="#7ea9c4" opacity=".55" font-size="12" text-anchor="middle">A</text>
+      <text x="450" y="49" fill="#7ea9c4" opacity=".55" font-size="12" text-anchor="middle">B</text>
+      <text x="740" y="49" fill="#7ea9c4" opacity=".55" font-size="12" text-anchor="middle">C</text>
+      <text x="75" y="124" fill="#7ea9c4" opacity=".55" font-size="12" text-anchor="middle">1</text>
+      <text x="75" y="394" fill="#7ea9c4" opacity=".55" font-size="12" text-anchor="middle">2</text>
+      <text x="75" y="624" fill="#7ea9c4" opacity=".55" font-size="12" text-anchor="middle">3</text>
 
       <!-- muro exterior (doble línea) -->
       <path data-draw d="M150 120 H740 V620 H150 Z" stroke-width="1.6" />
@@ -114,19 +180,19 @@
       <line class="thin" data-draw x1="150" y1="646" x2="150" y2="664" />
       <line class="thin" data-draw x1="450" y1="646" x2="450" y2="664" />
       <line class="thin" data-draw x1="740" y1="646" x2="740" y2="664" />
-      <text x="300" y="649" fill="#1f5f8b" opacity=".55" font-size="12" text-anchor="middle">7.50</text>
-      <text x="595" y="649" fill="#1f5f8b" opacity=".55" font-size="12" text-anchor="middle">7.25</text>
+      <text x="300" y="649" fill="#7ea9c4" opacity=".55" font-size="12" text-anchor="middle">7.50</text>
+      <text x="595" y="649" fill="#7ea9c4" opacity=".55" font-size="12" text-anchor="middle">7.25</text>
       <line class="thin" data-draw x1="800" y1="120" x2="800" y2="620" />
       <line class="thin" data-draw x1="791" y1="120" x2="809" y2="120" />
       <line class="thin" data-draw x1="791" y1="390" x2="809" y2="390" />
       <line class="thin" data-draw x1="791" y1="620" x2="809" y2="620" />
-      <text x="815" y="255" fill="#1f5f8b" opacity=".55" font-size="12">6.75</text>
-      <text x="815" y="505" fill="#1f5f8b" opacity=".55" font-size="12">5.75</text>
+      <text x="815" y="255" fill="#7ea9c4" opacity=".55" font-size="12">6.75</text>
+      <text x="815" y="505" fill="#7ea9c4" opacity=".55" font-size="12">5.75</text>
 
       <!-- norte -->
       <circle class="thin" data-draw cx="860" cy="70" r="26" />
       <path class="thin" data-draw d="M860 90 L860 50 L850 78 L860 71 L870 78 Z" />
-      <text x="860" y="40" fill="#1f5f8b" opacity=".55" font-size="12" text-anchor="middle">N</text>
+      <text x="860" y="40" fill="#7ea9c4" opacity=".55" font-size="12" text-anchor="middle">N</text>
     </svg>
   </div>
 
@@ -177,8 +243,8 @@
         <line data-draw x1="380" y1="18" x2="380" y2="42" />
         <line data-draw x1="750" y1="18" x2="750" y2="42" />
         <path class="thin" data-draw d="M10 30 l14 -5 v10 Z M750 30 l-14 -5 v10 Z" />
-        <text x="195" y="22" fill="#1f5f8b" opacity=".6" font-size="12" text-anchor="middle">IDEA — 9.00</text>
-        <text x="565" y="22" fill="#1f5f8b" opacity=".6" font-size="12" text-anchor="middle">OBRA — 9.00</text>
+        <text x="195" y="22" fill="#7ea9c4" opacity=".6" font-size="12" text-anchor="middle">IDEA — 9.00</text>
+        <text x="565" y="22" fill="#7ea9c4" opacity=".6" font-size="12" text-anchor="middle">OBRA — 9.00</text>
       </svg>
     </div>
   </div>
@@ -262,7 +328,13 @@
 
 <!-- ============ EL ARQUITECTO ============ -->
 <section class="section people" id="arquitecto">
-  <div class="bp-grid"></div>
+  <div class="orn-door" aria-hidden="true">
+    <svg viewBox="0 0 260 220" fill="none">
+      <path class="jamb" d="M10 190 H30 M230 190 H250" />
+      <line class="leaf" x1="30" y1="190" x2="230" y2="190" />
+      <path class="arc" pathLength="1" d="M230 190 A200 200 0 0 0 30 -10 L30 190" opacity=".5" />
+    </svg>
+  </div>
   <div class="wrap">
     <span class="eyebrow reveal">El arquitecto</span>
     <h2 class="sec-title reveal" data-d="1">Fuera del <em>plano.</em></h2>
@@ -363,6 +435,6 @@
   <div class="lb-cap"></div>
 </div>
 
-<script src="assets/js/main.js?v=2"></script>
+<script src="assets/js/main.js?v=3"></script>
 </body>
 </html>

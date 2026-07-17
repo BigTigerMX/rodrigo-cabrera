@@ -125,6 +125,7 @@
   }
   var pxEls = [].slice.call(document.querySelectorAll('[data-parallax]'));
   var heroPlan = document.querySelector('.hero__plan svg');
+  var bgPlan = document.querySelector('.bg-plan svg');
   var dimSvg = document.querySelector('.dimline svg');
   var contactPlan = document.querySelector('.contact__plan svg');
   var sections = [].slice.call(document.querySelectorAll('section[id]'));
@@ -143,6 +144,8 @@
     }
 
     if (!reduceMotion) {
+      // plano de fondo: deriva lenta con el scroll
+      if (bgPlan) bgPlan.style.transform = 'translate3d(0,' + (window.scrollY * -0.035).toFixed(1) + 'px,0) scale(1.08)';
       // parallax genérico
       for (var p = 0; p < pxEls.length; p++) {
         var pe = pxEls[p], pr = pe.getBoundingClientRect();
