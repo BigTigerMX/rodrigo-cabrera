@@ -1,0 +1,16 @@
+TIPOGRAFÍAS DEL SITIO
+=====================
+
+space-grotesk-latin-var.woff2
+  Space Grotesk — Florian Karsten
+  SIL Open Font License 1.1
+  https://fonts.google.com/specimen/Space+Grotesk
+
+jost-latin-var.woff2
+  Jost* — Owen Earl (indestructible type*)
+  SIL Open Font License 1.1
+  https://fonts.google.com/specimen/Jost
+
+Ambos son los subconjuntos latinos (variables) que sirve Google Fonts,
+guardados aquí para no depender de un tercero al pintar la portada.
+La OFL permite redistribuirlos incrustados en un sitio web.

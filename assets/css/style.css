@@ -3,7 +3,24 @@
    Sitio personal — estética editorial / blueprint
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Jost:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+/* Tipografía servida desde el propio sitio.
+   Antes venía por @import de Google Fonts: eso encadena dos peticiones a
+   otro dominio ANTES de poder pintar el título, y si tarda, el titular se
+   compone con la fuente de respaldo y las medidas del hero dejan de
+   cuadrar (el tamaño del h1 está calculado para estas letras, no para
+   Arial). Son dos woff2 latinos, 49 KB en total. SIL Open Font License. */
+@font-face{
+  font-family:'Space Grotesk';
+  src:url('../fonts/space-grotesk-latin-var.woff2') format('woff2');
+  font-weight:300 700;font-style:normal;font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face{
+  font-family:'Jost';
+  src:url('../fonts/jost-latin-var.woff2') format('woff2');
+  font-weight:300 600;font-style:normal;font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
 
 /* ---------- Variables ---------- */
 :root{
@@ -157,7 +174,7 @@ body.loading .hero__stage>*{opacity:0}
    ========================================================= */
 .site-header{position:fixed;top:0;left:0;width:100%;z-index:100;padding:1.3rem 0;
   transition:background .4s var(--ease),padding .4s var(--ease),box-shadow .4s var(--ease)}
-.site-header.scrolled{background:rgba(12,17,22,.88);backdrop-filter:blur(12px);padding:.85rem 0;box-shadow:0 1px 0 rgba(255,255,255,.07)}
+.site-header.scrolled{background:rgba(12,17,22,.96);padding:.85rem 0;box-shadow:0 1px 0 rgba(255,255,255,.07)}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:2rem}
 .brand{display:flex;align-items:center;gap:.75rem;color:var(--paper)}
 .brand__mark{height:26px;width:auto;transition:filter .4s var(--ease)}
@@ -190,32 +207,56 @@ body.no-scroll{overflow:hidden}
 .bp path,.bp line,.bp rect,.bp circle,.bp polyline{fill:none;stroke:var(--blue-line);stroke-width:1.1;vector-effect:non-scaling-stroke}
 .bp .thin{stroke-width:.6;opacity:.6}
 
-.hero__stage{position:relative;z-index:2;width:min(var(--wide),92vw);margin-inline:auto;display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(1.5rem,4vw,4rem);align-items:center}
-.hero__meta{display:flex;gap:2.2rem;flex-wrap:wrap;margin-bottom:2rem}
-.hero__meta span{font-family:var(--disp);font-size:.64rem;letter-spacing:.32em;text-transform:uppercase;color:var(--muted-2);
-  display:inline-flex;align-items:center;gap:.6rem}
-.hero__meta span::before{content:"";width:5px;height:5px;background:var(--blue);border-radius:50%}
+.hero__stage{position:relative;z-index:2;width:min(var(--wide),92vw);margin-inline:auto;display:grid;
+  grid-template-columns:minmax(0,1fr) clamp(15rem,23vw,19.5rem);gap:clamp(1.8rem,4vw,4rem);align-items:end}
+.hero__stage>*{transition:opacity .8s var(--ease),transform .8s var(--ease)}
+
+/* El titular se mide contra SU columna, no contra la ventana: por eso el
+   tamaño va en cqw. Con vw, al abrirse la ficha de la derecha la columna
+   del texto encogía y "CABRERA" se partía a media palabra (CABRER / A). */
+.hero__texto{container-type:inline-size;min-width:0}
 .hero h1{
   font-family:var(--disp);font-weight:600;text-transform:uppercase;
-  font-size:clamp(3.2rem,10.5vw,9.2rem);line-height:.94;letter-spacing:-.015em;
+  font-size:clamp(2.6rem,20cqw,8.4rem);line-height:.92;letter-spacing:-.015em;
 }
 .hero h1 .ln{display:block;overflow:hidden}
-.hero h1 .ln:nth-child(2){color:transparent;-webkit-text-stroke:1.5px var(--paper);margin-left:clamp(1rem,6vw,6rem)}
+/* nowrap: un renglón es UNA palabra. Si algún día no cupiera, preferimos
+   que se note en la compuerta (desborde) y no que se parta en silencio. */
+.hero h1 .ln>[data-letters]{display:block;white-space:nowrap}
+.hero h1 .ln:nth-child(2){color:transparent;-webkit-text-stroke:1.5px var(--paper);margin-left:6cqw}
 .hero h1 .ch{display:inline-block;transform:translateY(115%);transition:transform 1s var(--ease-out)}
 .hero.enter h1 .ch{transform:translateY(0)}
 .hero__tag{max-width:44ch;margin-top:2.2rem;font-size:1.06rem;color:var(--muted)}
 .hero__actions{display:flex;gap:1rem;flex-wrap:wrap;margin-top:2.4rem}
 
-.hero__portrait{position:relative;justify-self:end;width:min(34vw,420px)}
-.hero__portrait .frame{position:relative;overflow:hidden;clip-path:inset(100% 0 0 0);transition:clip-path 1.3s var(--ease-out) .3s}
-.hero.enter .hero__portrait .frame{clip-path:inset(0 0 0 0)}
-.hero__portrait img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:center 30%;
-  filter:saturate(.9) contrast(1.03);transform:scale(1.18);transition:transform 1.6s var(--ease-out) .3s}
-.hero.enter .hero__portrait img{transform:scale(1)}
-.hero__portrait::after{content:"";position:absolute;inset:auto -14px -14px auto;width:70%;height:70%;
-  border:1px solid var(--blue-line);z-index:-1}
-.hero__portrait .cap{font-family:var(--disp);font-size:.6rem;letter-spacing:.34em;text-transform:uppercase;color:var(--muted-2);margin-top:1rem;text-align:right}
-.hero__stage>*{transition:opacity .8s var(--ease),transform .8s var(--ease)}
+/* ---------- Cartucho (ficha técnica de la portada) ---------- */
+.hero__ficha{
+  position:relative;border:1px solid rgba(242,239,233,.16);background:rgba(10,14,19,.55);
+  padding:.9rem .9rem 1.4rem;display:grid;gap:.9rem;align-self:end;
+  clip-path:inset(0 0 100% 0);transition:opacity .8s var(--ease),clip-path 1.1s var(--ease-out) .35s;
+}
+.hero.enter .hero__ficha{clip-path:inset(0 0 0 0)}
+.hero__ficha::before{content:"";position:absolute;left:-1px;top:-1px;width:14px;height:14px;
+  border-left:1px solid var(--blue-line);border-top:1px solid var(--blue-line)}
+.hero__ficha::after{content:"";position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;
+  border-right:1px solid var(--blue-line);border-bottom:1px solid var(--blue-line)}
+.hero__retrato{position:relative;overflow:hidden;background:#0a0e13}
+.hero__retrato img{
+  width:100%;aspect-ratio:4/5;object-fit:cover;object-position:74% 12%;
+  /* B/N y contraste alto: el original es una foto de teléfono y a color
+     el fondo pesa más que la cara. */
+  filter:grayscale(1) contrast(1.12) brightness(.94);
+  transform:scale(1.06);transition:transform 1.6s var(--ease-out) .35s;
+}
+.hero.enter .hero__retrato img{transform:scale(1)}
+.hero__retrato::after{content:"";position:absolute;inset:0;border:1px solid rgba(242,239,233,.1);pointer-events:none}
+.ficha__filas{display:grid}
+.ficha__fila{display:flex;align-items:baseline;justify-content:space-between;gap:.8rem;
+  padding:.5rem 0;border-top:1px solid rgba(242,239,233,.12)}
+.ficha__fila:first-child{border-top:0}
+.ficha__rot{font-family:var(--disp);font-size:.56rem;letter-spacing:.3em;text-transform:uppercase;color:var(--blue-soft);white-space:nowrap}
+.ficha__dato{font-family:var(--disp);font-size:.82rem;font-weight:500;letter-spacing:.04em;color:var(--paper);text-align:right}
+.ficha__pie{font-family:var(--disp);font-size:.52rem;letter-spacing:.34em;color:var(--muted-2);text-align:right;display:block}
 .hero__scroll{position:absolute;left:max(4vw,2rem);bottom:2rem;z-index:3;font-family:var(--disp);
   font-size:.6rem;letter-spacing:.4em;text-transform:uppercase;writing-mode:vertical-rl;color:var(--muted-2);
   animation:scrollPulse 2.4s ease-in-out infinite}
@@ -258,7 +299,17 @@ body.no-scroll{overflow:hidden}
    OBRA — galería horizontal
    ========================================================= */
 .works{position:relative;background:var(--night-2);color:var(--paper)}
+/* El manifiesto entrega directo a la galería: su relleno inferior sumado
+   al centrado del carril dejaba ~430 px de nada entre la línea de cota y
+   "Obra selecta". */
+.manifesto{padding-bottom:clamp(2.5rem,5vw,4rem)}
 .works__pin{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden}
+.works__cab{position:absolute;left:max(4vw,2rem);right:max(4vw,2rem);top:clamp(4.5rem,9vh,6.5rem);
+  display:flex;align-items:center;justify-content:space-between;gap:1.5rem;z-index:3}
+.works__cab .eyebrow{color:var(--blue-soft)}
+.works__cab .eyebrow::before{background:var(--blue-soft)}
+.works__cuenta{font-family:var(--disp);font-size:.66rem;letter-spacing:.3em;color:var(--muted-2)}
+.works__cuenta b{font-weight:500;color:var(--paper)}
 .works__track{display:flex;gap:clamp(2rem,4vw,4.5rem);padding-inline:max(4vw,2rem);will-change:transform;align-items:center}
 .wpanel{flex:0 0 auto;width:min(72vw,560px)}
 .wpanel--intro{width:min(80vw,620px)}
@@ -273,7 +324,7 @@ body.no-scroll{overflow:hidden}
 .wpanel:hover .wpanel__media img{transform:scale(1.08);filter:grayscale(0)}
 .wpanel__media::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.12);pointer-events:none}
 .wpanel__num{position:absolute;top:1rem;left:1.1rem;font-family:var(--disp);font-size:.66rem;letter-spacing:.3em;color:#cfe0ea;z-index:2;
-  background:rgba(12,17,22,.55);padding:.3rem .6rem;backdrop-filter:blur(4px)}
+  background:rgba(12,17,22,.82);padding:.3rem .6rem}
 .wpanel__info{display:flex;justify-content:space-between;align-items:baseline;margin-top:1rem;gap:1rem}
 .wpanel__info h3{font-family:var(--disp);font-weight:500;font-size:1.15rem;letter-spacing:.02em}
 .wpanel__info span{font-family:var(--disp);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:#7d95a8}
@@ -282,7 +333,9 @@ body.no-scroll{overflow:hidden}
 .works__progress{position:absolute;left:max(4vw,2rem);right:max(4vw,2rem);bottom:2.2rem;height:1px;background:rgba(255,255,255,.14)}
 .works__progress i{position:absolute;left:0;top:0;height:100%;width:0;background:var(--blue);transition:width .2s linear}
 /* fallback vertical (móvil) */
-.works.stacked .works__pin{position:static;height:auto;display:block;padding:clamp(4rem,9vw,6rem) 0}
+.works.stacked .works__pin{position:static;height:auto;display:block;padding:clamp(2.5rem,6vw,4rem) 0 clamp(4rem,9vw,6rem)}
+.works.stacked .works__cab{position:static;width:min(92vw,640px);margin:0 auto 2rem;top:auto}
+.works.stacked .works__cuenta{display:none}
 .works.stacked .works__track{flex-direction:column;align-items:stretch;width:min(92vw,640px);margin-inline:auto;transform:none !important}
 .works.stacked .wpanel{width:100%}
 .works.stacked .works__progress{display:none}
@@ -298,13 +351,12 @@ body.no-scroll{overflow:hidden}
 .pcard:hover img{filter:grayscale(0);transform:scale(1.045)}
 .pcard::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.12);pointer-events:none}
 .pcard .tag{position:absolute;left:1rem;bottom:1rem;font-family:var(--disp);font-size:.6rem;letter-spacing:.3em;
-  text-transform:uppercase;color:#fff;background:rgba(16,18,20,.55);padding:.35rem .7rem;backdrop-filter:blur(4px)}
-.pcard--a{grid-column:1/span 4;margin-top:3rem}
-.pcard--a img{aspect-ratio:3/4.4}
-.pcard--b{grid-column:5/span 4}
-.pcard--b img{aspect-ratio:3/4.4}
-.pcard--c{grid-column:9/span 4;margin-top:5.5rem}
-.pcard--c img{aspect-ratio:3/3.6;object-position:center 20%}
+  text-transform:uppercase;color:#fff;background:rgba(16,18,20,.8);padding:.35rem .7rem}
+.pcard--a{grid-column:1/span 7}
+.pcard--a img{aspect-ratio:4/3.4;object-position:center 42%}
+.pcard--b{grid-column:9/span 4;margin-top:4.5rem}
+.pcard--b img{aspect-ratio:3/4}
+.people__nota{grid-column:9/span 4;color:var(--muted);font-size:.98rem;margin-top:1.4rem}
 
 /* banda panorámica */
 .pano{position:relative;height:72vh;overflow:hidden}
@@ -411,7 +463,7 @@ body.no-scroll{overflow:hidden}
 .cursor{width:36px;height:36px;border:1px solid #fff}
 .cursor-dot{width:6px;height:6px;background:#fff}
 .cursor.is-hover{width:70px;height:70px;background:rgba(255,255,255,.07);mix-blend-mode:normal}
-.cursor.is-media{width:94px;height:94px;background:rgba(255,255,255,.1);border-color:transparent;mix-blend-mode:normal;backdrop-filter:blur(1px)}
+.cursor.is-media{width:94px;height:94px;background:rgba(255,255,255,.12);border-color:transparent;mix-blend-mode:normal}
 .cursor__label{position:fixed;top:0;left:0;z-index:1501;pointer-events:none;color:#fff;font-family:var(--disp);
   font-size:.58rem;letter-spacing:.26em;text-transform:uppercase;transform:translate3d(-50%,-50%,0) scale(.4);
   opacity:0;transition:opacity .3s,transform .3s var(--ease)}
@@ -441,13 +493,19 @@ body.no-scroll{overflow:hidden}
    RESPONSIVE
    ========================================================= */
 @media(max-width:1020px){
-  .hero__stage{grid-template-columns:1fr}
-  .hero__portrait{justify-self:start;width:min(62vw,380px);margin-top:1rem}
+  /* El cartucho pasa a tendido: retrato a la izquierda y los datos a la
+     derecha. Así nunca hay un dato solo en su renglón, que era el defecto
+     de la fila de metadatos anterior a 390 px. */
+  .hero__stage{grid-template-columns:1fr;align-items:start}
+  .hero__ficha{grid-template-columns:minmax(0,34%) minmax(0,1fr);gap:1rem;align-items:start;margin-top:.6rem}
+  .hero__retrato{grid-row:span 2}
+  .hero__retrato img{aspect-ratio:1/1.12}
+  .ficha__pie{align-self:end;padding-bottom:.2rem}
   .hero__plan{opacity:.28}
   .people__grid{grid-template-columns:repeat(6,1fr)}
-  .pcard--a{grid-column:1/span 3;margin-top:0}
-  .pcard--b{grid-column:4/span 3}
-  .pcard--c{grid-column:2/span 4;margin-top:1.5rem}
+  .pcard--a{grid-column:1/span 4;margin-top:0}
+  .pcard--b{grid-column:5/span 2;margin-top:2.5rem}
+  .people__nota{grid-column:1/span 6}
 }
 @media(max-width:760px){
   .nav__toggle{display:flex}
@@ -464,10 +522,14 @@ body.no-scroll{overflow:hidden}
   .hero{padding-top:6.4rem}
   .hero__scroll{display:none}
   .hero h1 .ln:nth-child(2){margin-left:0}
+  /* A 390 px el dato largo ("Ciudad de México") partía en dos renglones
+     contra el rótulo; apilado se lee como el cajetín de un plano. */
+  .ficha__fila{flex-direction:column;align-items:flex-start;gap:.1rem;padding:.45rem 0}
+  .ficha__dato{text-align:left;font-size:.86rem}
   .people__grid{grid-template-columns:1fr 1fr;gap:1rem}
   .pcard--a,.pcard--b{grid-column:auto/span 1;margin-top:0}
-  .pcard--c{grid-column:1/span 2;margin-top:0}
-  .pcard--c img{aspect-ratio:16/10}
+  .pcard--a img,.pcard--b img{aspect-ratio:3/4.2}
+  .people__nota{grid-column:1/span 2}
   .pano{height:52vh}
   .biglink{flex-wrap:wrap;gap:.5rem}
   .biglink small{min-width:100%}
@@ -485,7 +547,7 @@ html:not(.js) .stagger>*,
 html:not(.js) .hero__stage>*,
 html:not(.js) .word__in,
 html:not(.js) .hero h1 .ch{opacity:1 !important;transform:none !important;clip-path:none !important}
-html:not(.js) .hero__portrait .frame{clip-path:none}
+html:not(.js) .hero__ficha{clip-path:none}
 html:not(.js) .works__pin{position:static;height:auto}
 html:not(.js) .works__track{flex-wrap:wrap}
 
@@ -496,8 +558,8 @@ html:not(.js) .works__track{flex-wrap:wrap}
   body.loading .hero__stage>*{opacity:1}
   .reveal,.reveal-img,.stagger>*{opacity:1;transform:none;clip-path:none}
   .word__in,.hero h1 .ch{transform:none}
-  .hero__portrait .frame{clip-path:none}
-  .hero__portrait img{transform:none}
+  .hero__ficha{clip-path:none}
+  .hero__retrato img{transform:none}
   .marquee__track{animation:none}
   .cursor,.cursor-dot,.cursor__label{display:none}
 }

@@ -128,6 +128,28 @@
   var bgPlan = document.querySelector('.bg-plan svg');
   var dimSvg = document.querySelector('.dimline svg');
   var contactPlan = document.querySelector('.contact__plan svg');
+  var obraPaneles = [].slice.call(document.querySelectorAll('.wpanel__media'));
+  var obraActual = document.querySelector('[data-obra-actual]');
+  var obraTotal = document.querySelector('[data-obra-total]');
+  var obraUltimo = -1;
+  if (obraTotal) obraTotal.textContent = ('0' + obraPaneles.length).slice(-2);
+  // Cuál obra está al centro. Se mide por rectángulos y no por el progreso
+  // del scroll: el carril arranca con el panel de intro y termina con el de
+  // CTA, así que el progreso NO es proporcional al número de obra.
+  function contarObra() {
+    if (!obraActual || !obraPaneles.length) return;
+    var centro = window.innerWidth / 2, mejor = 0, dist = Infinity;
+    for (var i = 0; i < obraPaneles.length; i++) {
+      var r = obraPaneles[i].getBoundingClientRect();
+      var d = Math.abs(r.left + r.width / 2 - centro);
+      if (d < dist) { dist = d; mejor = i; }
+    }
+    if (mejor !== obraUltimo) {
+      obraUltimo = mejor;
+      obraActual.textContent = ('0' + (mejor + 1)).slice(-2);
+    }
+  }
+
   var sections = [].slice.call(document.querySelectorAll('section[id]'));
   var navLinks = [].slice.call(document.querySelectorAll('.nav__links a[href^="#"]'));
 
@@ -189,6 +211,13 @@
           pano.style.transform = 'translate3d(0,' + ((pp - 0.5) * 90).toFixed(1) + 'px,0)';
         }
       }
+    }
+
+    // Contador de obra: fuera del bloque de movimiento a propósito. Con
+    // prefers-reduced-motion se apaga la animación, no el JS.
+    if (works) {
+      var wvr = works.getBoundingClientRect();
+      if (wvr.bottom > 0 && wvr.top < vh) contarObra();
     }
 
     // nav activo

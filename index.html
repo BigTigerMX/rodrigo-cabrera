@@ -7,7 +7,7 @@
 <title>Rodrigo Cabrera · Arquitecto</title>
 <meta name="description" content="Rodrigo Cabrera, arquitecto. Proyecta y construye espacios residenciales en México donde la piedra, la madera y la luz conviven. Fundador de ARCO Arquitectura & Construcción.">
 <link rel="icon" href="assets/img/favicon.png">
-<link rel="stylesheet" href="assets/css/style.css?v=3">
+<link rel="stylesheet" href="assets/css/style.css?v=4">
 </head>
 <body class="loading">
 
@@ -197,12 +197,7 @@
   </div>
 
   <div class="hero__stage">
-    <div>
-      <div class="hero__meta">
-        <span>Ciudad de México</span>
-        <span>Est. 2008</span>
-        <span>110+ proyectos</span>
-      </div>
+    <div class="hero__texto">
       <h1 aria-label="Rodrigo Cabrera — arquitecto">
         <span class="ln"><span data-letters>RODRIGO</span></span>
         <span class="ln"><span data-letters>CABRERA</span></span>
@@ -213,10 +208,33 @@
         <a class="btn btn--blue" href="#contacto"><span>Hablemos</span><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
     </div>
-    <figure class="hero__portrait">
-      <div class="frame"><img src="assets/img/r4c.jpg" alt="Rodrigo Cabrera, arquitecto"></div>
-      <figcaption class="cap">Rodrigo Cabrera — Arquitecto</figcaption>
-    </figure>
+
+    <!-- Cartucho: el bloque de datos que todo plano lleva en su esquina.
+         Sustituye a la fila suelta de metadatos, que en móvil se partía. -->
+    <aside class="hero__ficha" aria-label="Ficha del arquitecto">
+      <figure class="hero__retrato">
+        <img src="assets/img/r1c.jpg" alt="Rodrigo Cabrera, arquitecto">
+      </figure>
+      <dl class="ficha__filas">
+        <div class="ficha__fila">
+          <dt class="ficha__rot">Estudio</dt>
+          <dd class="ficha__dato">ARCO</dd>
+        </div>
+        <div class="ficha__fila">
+          <dt class="ficha__rot">Ubicación</dt>
+          <dd class="ficha__dato">Ciudad de México</dd>
+        </div>
+        <div class="ficha__fila">
+          <dt class="ficha__rot">Estudio desde</dt>
+          <dd class="ficha__dato">2008</dd>
+        </div>
+        <div class="ficha__fila">
+          <dt class="ficha__rot">Proyectos</dt>
+          <dd class="ficha__dato">110+</dd>
+        </div>
+      </dl>
+      <span class="ficha__pie" aria-hidden="true">ESC. 1:1 · CDMX</span>
+    </aside>
   </div>
   <span class="hero__scroll" aria-hidden="true">Desliza</span>
 </section>
@@ -253,9 +271,14 @@
 <!-- ============ OBRA (scroll horizontal) ============ -->
 <section class="works" id="obra">
   <div class="works__pin">
+    <!-- Cabecera fija del carril: antes esta franja superior era aire
+         muerto (medio viewport en blanco al entrar a la sección). -->
+    <div class="works__cab">
+      <span class="eyebrow">Obra selecta</span>
+      <span class="works__cuenta"><b data-obra-actual>01</b> / <span data-obra-total>08</span></span>
+    </div>
     <div class="works__track">
       <div class="wpanel wpanel--intro">
-        <span class="eyebrow">Obra selecta</span>
         <h2>Construido,<br><em>no prometido.</em></h2>
         <p>Una selección de residencias, interiores y obra ejecutada. Desliza — cada proyecto se recorre como se recorre una casa: sin prisa.</p>
       </div>
@@ -338,19 +361,18 @@
   <div class="wrap">
     <span class="eyebrow reveal">El arquitecto</span>
     <h2 class="sec-title reveal" data-d="1">Fuera del <em>plano.</em></h2>
+    <!-- Dos piezas, no tres: el retrato de cerca subió a la portada y
+         repetirlo aquí abarataba la sección. -->
     <div class="people__grid">
       <figure class="pcard pcard--a reveal-img" data-cursor="Rodrigo">
         <img src="assets/img/r3.jpg" alt="Rodrigo Cabrera leyendo el territorio en la sierra">
         <figcaption class="tag">Leer el territorio</figcaption>
       </figure>
       <figure class="pcard pcard--b reveal-img" data-cursor="Rodrigo">
-        <img src="assets/img/r1c.jpg" alt="Rodrigo Cabrera" style="object-position:50% 22%">
-        <figcaption class="tag">La vida, primero</figcaption>
-      </figure>
-      <figure class="pcard pcard--c reveal-img" data-cursor="Rodrigo">
         <img src="assets/img/r2c.jpg" alt="Rodrigo Cabrera en la Barranca del Cobre" style="object-position:50% 40%">
         <figcaption class="tag">La escala del paisaje</figcaption>
       </figure>
+      <p class="people__nota reveal" data-d="2">Fuera del despacho, el oficio sigue: un sitio se camina, se mira a contraluz y se mide con el cuerpo antes de dibujarlo.</p>
     </div>
   </div>
 </section>
@@ -435,6 +457,6 @@
   <div class="lb-cap"></div>
 </div>
 
-<script src="assets/js/main.js?v=3"></script>
+<script src="assets/js/main.js?v=4"></script>
 </body>
 </html>
