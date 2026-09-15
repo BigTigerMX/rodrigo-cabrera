@@ -425,10 +425,38 @@ async function formularioSeComporta(page, donde) {
   const avisoError = (await page.locator('.cf-note').textContent()).trim();
   const claseError = await page.locator('.cf-note').getAttribute('class');
   if (!/error/.test(claseError || '')) falla(donde, `cuando el envío falla no se avisa como error (aviso: "${avisoError}")`);
-  if (!/@/.test(avisoError)) falla(donde, 'el aviso de error no ofrece el correo directo como salida');
+  if (!/arquitecto@rodrigo-cabrera\.com/.test(avisoError)) {
+    falla(donde, `el aviso de error no ofrece la dirección pública del arquitecto como salida (dice: "${avisoError}")`);
+  }
+  for (const patron of CORREOS_INTERNOS) {
+    if (patron.test(avisoError)) falla(donde, `el aviso de error muestra una dirección interna: "${avisoError}"`);
+  }
   const btn = page.locator('.contact__form button[type="submit"]');
   if (await btn.isDisabled()) falla(donde, 'tras un envío fallido el botón se queda bloqueado');
   await page.unroute('**/formsubmit.co/**');
+}
+
+/* --------- comprobación 7 quater: ninguna dirección interna a la vista ---------
+   La página es de Rodrigo y sus clientes le escriben a él. Una dirección
+   nuestra cableada en la página pública de un cliente es un fallo, aunque
+   sea cómoda: se revisa el texto Y los atributos, porque un mailto no se
+   lee en la pantalla pero se ve al pasar el ratón y al copiar el enlace. */
+const CORREOS_INTERNOS = [/luis\.santi\.tiger@gmail\.com/i, /@gmail\.com/i, /@hotmail\.com/i];
+async function sinCorreosInternos(page, donde) {
+  const encontrados = await page.evaluate(() => {
+    const trozos = [document.body.innerText];
+    for (const el of document.querySelectorAll('[href],[action],[data-title],[alt]')) {
+      for (const attr of ['href', 'action', 'data-title', 'alt']) {
+        const v = el.getAttribute(attr);
+        if (v) trozos.push(v);
+      }
+    }
+    return trozos.join(' \n ');
+  });
+  for (const patron of CORREOS_INTERNOS) {
+    const hallazgo = encontrados.match(patron);
+    if (hallazgo) falla(donde, `dirección interna a la vista del visitante: ${hallazgo[0]}`);
+  }
 }
 
 /* --------- comprobación 8: sin backdrop-filter (regla de la casa) --------- */
@@ -514,6 +542,7 @@ for (const v of ANCHOS) {
   await corre('sin backdrop-filter', () => sinBackdropFilter(page, donde));
   await corre('suelo bajo la cita', () => sueloBajoLaCita(page, donde));
   await corre('anclas vivas', () => anclasVivas(page, donde));
+  await corre('sin correos internos', () => sinCorreosInternos(page, donde));
   await corre('el formulario se comporta', () => formularioSeComporta(page, donde));
   await corre('sin aire muerto', () => sinAireMuerto(page, donde));
 

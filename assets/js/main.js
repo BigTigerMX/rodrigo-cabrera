@@ -349,8 +349,14 @@
   /* ---------- 11. Formulario de contacto (FormSubmit) ---------- */
   var cform = document.querySelector('.contact__form');
   if (cform) {
-    var MAIL_ENDPOINT = 'https://formsubmit.co/ajax/luis.santi.tiger@gmail.com';
-    var MAIL_CC = 'arquitecto@rodrigo-cabrera.com';
+    // Los mensajes son para Rodrigo: es su página y sus clientes le escriben
+    // a él. La copia a Luis es temporal, para vigilar las primeras entregas.
+    // QUITAR EL CC a partir del 2026-10-15.
+    var MAIL_ENDPOINT = 'https://formsubmit.co/ajax/arquitecto@rodrigo-cabrera.com';
+    var MAIL_CC = 'luis.santi.tiger@gmail.com';
+    // La salida que se le ofrece al visitante si el envío falla es la
+    // dirección pública del arquitecto, no la de la copia interna.
+    var MAIL_DIRECTO = 'arquitecto@rodrigo-cabrera.com';
     var note = cform.querySelector('.cf-note');
     var campos = [].slice.call(cform.querySelectorAll('input[required], textarea[required]'));
 
@@ -423,7 +429,7 @@
         cform.reset();
         campos.forEach(function (c) { marca(c, false); });
       }).catch(function () {
-        aviso('No se pudo enviar. Escríbeme directo a ' + MAIL_CC + '.', 'error');
+        aviso('No se pudo enviar. Escríbeme directo a ' + MAIL_DIRECTO + '.', 'error');
       }).finally(function () {
         btn.disabled = false;
         btnSpan.textContent = btnText;
