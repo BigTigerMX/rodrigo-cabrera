@@ -30,10 +30,13 @@
   --ink-soft:#33383d;
   --stone:#6d675c;
   --line:rgba(242,239,233,.14);
-  --blue-soft:#7ea9c4;
+  /* Los rótulos pequeños viven sobre el plano azul animado: medidos contra
+     una línea del plano (el peor caso, no el fondo base) los tonos viejos
+     daban 4.48 y 3.61. Éstos dan 5.47 y 5.36. */
+  --blue-soft:#93bad2;
   --blue-line:#5d92bd;
   --muted:#9db2c2;
-  --muted-2:#7d95a8;
+  --muted-2:#a0b6c6;
   --blue:#1f5f8b;
   --blue-deep:#143c58;
   --night:#0c1116;
@@ -57,6 +60,10 @@ body{
   background:var(--night);line-height:1.7;
 }
 section[id]{scroll-margin-top:90px}
+/* Un titular corto se ve bien al ancho en que se diseñó y mal en todos los
+   demás: balance reparte los renglones en vez de dejar una palabra sola. */
+h1,h2,h3,blockquote,.statement{text-wrap:balance}
+p,figcaption,dd{text-wrap:pretty}
 img{display:block;max-width:100%;height:auto}
 a{color:inherit;text-decoration:none}
 ul{list-style:none}
@@ -159,15 +166,17 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .loader__name{font-family:var(--disp);font-weight:600;letter-spacing:.3em;text-transform:uppercase;
   font-size:clamp(1.1rem,3.4vw,1.7rem);overflow:hidden}
 .loader__name span{display:inline-block;transform:translateY(120%);animation:ldUp .8s var(--ease-out) forwards}
-.loader__sub{font-family:var(--disp);font-size:.6rem;letter-spacing:.5em;text-transform:uppercase;color:#7ea9c4;
-  margin-top:.9rem;opacity:0;animation:ldFade .7s ease .9s forwards}
+.loader__sub{font-family:var(--disp);font-size:.6rem;letter-spacing:.5em;text-transform:uppercase;color:#93bad2;
+  margin-top:.9rem;overflow:hidden}
+.loader__sub span{display:inline-block;transform:translateY(120%);animation:ldUp .7s var(--ease-out) .9s forwards}
 .loader__bar{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--blue);animation:ldBar 1.2s var(--ease) forwards}
 @keyframes ldUp{to{transform:translateY(0)}}
 @keyframes ldFade{to{opacity:1}}
 @keyframes ldBar{to{width:100%}}
 .loader.done{transform:translateY(-100%);transition:transform .95s var(--ease)}
 body.loading{overflow:hidden}
-body.loading .hero__stage>*{opacity:0}
+/* visibility, no opacity: el texto del hero no se desvanece, aparece. */
+body.loading .hero__stage>*{visibility:hidden}
 
 /* =========================================================
    HEADER
@@ -209,7 +218,8 @@ body.no-scroll{overflow:hidden}
 
 .hero__stage{position:relative;z-index:2;width:min(var(--wide),92vw);margin-inline:auto;display:grid;
   grid-template-columns:minmax(0,1fr) clamp(15rem,23vw,19.5rem);gap:clamp(1.8rem,4vw,4rem);align-items:end}
-.hero__stage>*{transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.hero__tag{clip-path:inset(0 0 100% 0);transition:clip-path .9s var(--ease-out) .5s}
+.hero.enter .hero__tag{clip-path:inset(0 0 0 0)}
 
 /* El titular se mide contra SU columna, no contra la ventana: por eso el
    tamaño va en cqw. Con vw, al abrirse la ficha de la derecha la columna
@@ -233,7 +243,7 @@ body.no-scroll{overflow:hidden}
 .hero__ficha{
   position:relative;border:1px solid rgba(242,239,233,.16);background:rgba(10,14,19,.55);
   padding:.9rem .9rem 1.4rem;display:grid;gap:.9rem;align-self:end;
-  clip-path:inset(0 0 100% 0);transition:opacity .8s var(--ease),clip-path 1.1s var(--ease-out) .35s;
+  clip-path:inset(0 0 100% 0);transition:clip-path 1.1s var(--ease-out) .35s;
 }
 .hero.enter .hero__ficha{clip-path:inset(0 0 0 0)}
 .hero__ficha::before{content:"";position:absolute;left:-1px;top:-1px;width:14px;height:14px;
@@ -291,14 +301,16 @@ body.no-scroll{overflow:hidden}
 .dimline svg{width:100%;height:auto}
 
 /* texto por palabras */
-.word{display:inline-block;overflow:hidden;vertical-align:top;margin-right:.26em}
+.word{display:inline-block;overflow:hidden;vertical-align:top}
 .word__in{display:inline-block;transform:translateY(115%);transition:transform .9s var(--ease-out)}
 .in .word__in,.is-in .word__in{transform:translateY(0)}
 
 /* =========================================================
    OBRA — galería horizontal
    ========================================================= */
-.works{position:relative;background:var(--night-2);color:var(--paper)}
+/* La obra se mira sobre superficie oscura y neutra: el plano azul del fondo
+   no compite con las fotos (el acento sirve porque es raro). */
+.works{position:relative;background:#0e1319;color:var(--paper)}
 /* El manifiesto entrega directo a la galería: su relleno inferior sumado
    al centrado del carril dejaba ~430 px de nada entre la línea de cota y
    "Obra selecta". */
@@ -316,8 +328,8 @@ body.no-scroll{overflow:hidden}
 .wpanel--intro h2{font-family:var(--disp);font-weight:600;text-transform:uppercase;font-size:clamp(2.4rem,6vw,4.6rem);line-height:1;letter-spacing:-.01em}
 .wpanel--intro h2 em{font-style:normal;color:transparent;-webkit-text-stroke:1.2px var(--paper)}
 .wpanel--intro p{color:#9db2c2;margin-top:1.4rem;max-width:40ch}
-.wpanel--intro .eyebrow{color:#7ea9c4}
-.wpanel--intro .eyebrow::before{background:#7ea9c4}
+.wpanel--intro .eyebrow{color:#93bad2}
+.wpanel--intro .eyebrow::before{background:#93bad2}
 .wpanel__media{position:relative;overflow:hidden;cursor:pointer}
 .wpanel__media img{width:100%;aspect-ratio:4/3;object-fit:cover;filter:grayscale(.25);
   transform:scale(1.02);transition:transform .9s var(--ease),filter .6s ease}
@@ -327,7 +339,7 @@ body.no-scroll{overflow:hidden}
   background:rgba(12,17,22,.82);padding:.3rem .6rem}
 .wpanel__info{display:flex;justify-content:space-between;align-items:baseline;margin-top:1rem;gap:1rem}
 .wpanel__info h3{font-family:var(--disp);font-weight:500;font-size:1.15rem;letter-spacing:.02em}
-.wpanel__info span{font-family:var(--disp);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:#7d95a8}
+.wpanel__info span{font-family:var(--disp);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:#a0b6c6}
 .wpanel--cta{width:min(70vw,480px);text-align:center}
 .wpanel--cta h3{font-family:var(--disp);font-weight:600;font-size:clamp(1.6rem,3.4vw,2.5rem);line-height:1.2;margin-bottom:1.8rem}
 .works__progress{position:absolute;left:max(4vw,2rem);right:max(4vw,2rem);bottom:2.2rem;height:1px;background:rgba(255,255,255,.14)}
@@ -352,16 +364,17 @@ body.no-scroll{overflow:hidden}
 .pcard::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.12);pointer-events:none}
 .pcard .tag{position:absolute;left:1rem;bottom:1rem;font-family:var(--disp);font-size:.6rem;letter-spacing:.3em;
   text-transform:uppercase;color:#fff;background:rgba(16,18,20,.8);padding:.35rem .7rem}
-.pcard--a{grid-column:1/span 7}
-.pcard--a img{aspect-ratio:4/3.4;object-position:center 42%}
-.pcard--b{grid-column:9/span 4;margin-top:4.5rem}
-.pcard--b img{aspect-ratio:3/4}
-.people__nota{grid-column:9/span 4;color:var(--muted);font-size:.98rem;margin-top:1.4rem}
+.pcard--a{grid-column:1/span 8}
+.pcard--a img{aspect-ratio:4/2.9;object-position:center 46%}
+.people__nota{grid-column:10/span 3;align-self:end;color:var(--muted);font-size:1rem;margin-bottom:.4rem}
 
 /* banda panorámica */
 .pano{position:relative;height:72vh;overflow:hidden}
 .pano__img{position:absolute;inset:-12% 0;background-size:cover;background-position:center 35%;will-change:transform}
-.pano::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,17,22,.45),rgba(12,17,22,.62))}
+/* Suelo del texto: si el texto va encima, el fondo lo pone el diseño, no la
+   foto. Medido contra la foto más clara del carrete, no contra ésta. */
+.pano::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(9,13,17,.74),rgba(9,13,17,.82))}
 .pano__quote{position:relative;z-index:2;height:100%;display:grid;place-items:center;text-align:center;color:var(--paper);padding:0 6vw}
 .pano__quote blockquote{font-family:var(--disp);font-weight:500;font-size:clamp(1.5rem,4vw,3rem);line-height:1.25;max-width:26ch}
 .pano__quote cite{display:block;font-style:normal;font-family:var(--disp);font-size:.66rem;letter-spacing:.4em;text-transform:uppercase;color:#a8c5d8;margin-top:1.6rem}
@@ -370,8 +383,8 @@ body.no-scroll{overflow:hidden}
    CONTACTO
    ========================================================= */
 .contact{position:relative;overflow:hidden}
-.contact .eyebrow{color:#7ea9c4}
-.contact .eyebrow::before{background:#7ea9c4}
+.contact .eyebrow{color:#93bad2}
+.contact .eyebrow::before{background:#93bad2}
 .contact h2{
   font-family:var(--disp);font-weight:600;text-transform:uppercase;
   font-size:clamp(2.6rem,8vw,6.4rem);line-height:1;letter-spacing:-.015em;margin-top:1.2rem;
@@ -384,13 +397,13 @@ body.no-scroll{overflow:hidden}
 }
 .biglink:last-child{border-bottom:1px solid #223140}
 .biglink:hover{padding-left:1.2rem}
-.biglink small{font-size:.62rem;letter-spacing:.34em;text-transform:uppercase;color:#7d95a8;min-width:110px}
+.biglink small{font-size:.62rem;letter-spacing:.34em;text-transform:uppercase;color:#a0b6c6;min-width:110px}
 .biglink b{font-weight:500;font-size:clamp(1.15rem,3.2vw,2rem);letter-spacing:.01em;color:var(--paper);position:relative}
 .biglink b::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:1px;background:var(--blue);transition:width .5s var(--ease)}
 .biglink:hover b::after{width:100%}
 .biglink .arr{margin-left:auto;font-size:1.4rem;color:var(--blue);transform:translateX(-8px);opacity:0;transition:.4s var(--ease)}
 .biglink:hover .arr{transform:none;opacity:1}
-.contact__foot{margin-top:3rem;display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;color:#7d95a8;font-size:.9rem}
+.contact__foot{margin-top:3rem;display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;color:#a0b6c6;font-size:.9rem}
 
 /* =========================================================
    FOOTER
@@ -436,13 +449,13 @@ body.no-scroll{overflow:hidden}
   padding:1.05rem 0 .65rem;outline:none;resize:vertical;transition:border-color .35s var(--ease);
 }
 .cf-field label{
-  position:absolute;left:0;top:1rem;color:#7d95a8;font-size:.95rem;pointer-events:none;
+  position:absolute;left:0;top:1rem;color:#a0b6c6;font-size:.95rem;pointer-events:none;
   transition:transform .35s var(--ease),font-size .35s,letter-spacing .35s,color .35s;transform-origin:0 0;
 }
-.cf-field input:focus,.cf-field textarea:focus{border-color:#7ea9c4}
+.cf-field input:focus,.cf-field textarea:focus{border-color:#93bad2}
 .cf-field input:focus + label,.cf-field textarea:focus + label,
 .cf-field input:not(:placeholder-shown) + label,.cf-field textarea:not(:placeholder-shown) + label{
-  transform:translateY(-1.5rem);font-size:.58rem;letter-spacing:.32em;text-transform:uppercase;color:#7ea9c4;
+  transform:translateY(-1.5rem);font-size:.58rem;letter-spacing:.32em;text-transform:uppercase;color:#93bad2;
 }
 .cf-actions{display:flex;align-items:center;gap:1.6rem;flex-wrap:wrap}
 .cf-actions .btn[disabled]{opacity:.5;pointer-events:none}
@@ -451,7 +464,7 @@ body.no-scroll{overflow:hidden}
 
 .contact__plan{position:absolute;right:max(3vw,1.5rem);top:8rem;width:min(24vw,260px);opacity:.5;pointer-events:none}
 .contact__plan svg{width:100%;height:auto}
-.contact__plan .bp path,.contact__plan .bp line,.contact__plan .bp circle{stroke:#7ea9c4}
+.contact__plan .bp path,.contact__plan .bp line,.contact__plan .bp circle{stroke:#93bad2}
 @media(max-width:1020px){.contact__plan{display:none}}
 
 /* =========================================================
@@ -475,8 +488,13 @@ body.no-scroll{overflow:hidden}
 /* =========================================================
    REVEALS
    ========================================================= */
-.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
-.reveal.in{opacity:1;transform:none}
+/* Nunca se anima la opacidad de un texto: a media transición el contraste
+   no se cumple. Se destapa con máscara (clip-path) a opacidad plena. El JS
+   quita el clip al terminar para no recortar foco ni hover. */
+.reveal{opacity:1;clip-path:inset(0 0 100% 0);transform:translateY(22px);
+  transition:clip-path .9s var(--ease-out),transform .9s var(--ease)}
+.reveal.in{clip-path:inset(0 0 0 0);transform:none}
+.reveal.destapada{clip-path:none}
 .reveal[data-d="1"]{transition-delay:.12s}
 .reveal[data-d="2"]{transition-delay:.24s}
 .reveal[data-d="3"]{transition-delay:.36s}
@@ -503,9 +521,8 @@ body.no-scroll{overflow:hidden}
   .ficha__pie{align-self:end;padding-bottom:.2rem}
   .hero__plan{opacity:.28}
   .people__grid{grid-template-columns:repeat(6,1fr)}
-  .pcard--a{grid-column:1/span 4;margin-top:0}
-  .pcard--b{grid-column:5/span 2;margin-top:2.5rem}
-  .people__nota{grid-column:1/span 6}
+  .pcard--a{grid-column:1/span 6;margin-top:0}
+  .people__nota{grid-column:1/span 6;margin-top:1.4rem}
 }
 @media(max-width:760px){
   .nav__toggle{display:flex}
@@ -527,8 +544,8 @@ body.no-scroll{overflow:hidden}
   .ficha__fila{flex-direction:column;align-items:flex-start;gap:.1rem;padding:.45rem 0}
   .ficha__dato{text-align:left;font-size:.86rem}
   .people__grid{grid-template-columns:1fr 1fr;gap:1rem}
-  .pcard--a,.pcard--b{grid-column:auto/span 1;margin-top:0}
-  .pcard--a img,.pcard--b img{aspect-ratio:3/4.2}
+  .pcard--a{grid-column:1/span 2;margin-top:0}
+  .pcard--a img{aspect-ratio:4/3.2}
   .people__nota{grid-column:1/span 2}
   .pano{height:52vh}
   .biglink{flex-wrap:wrap;gap:.5rem}
@@ -541,6 +558,7 @@ body.no-scroll{overflow:hidden}
    ========================================================= */
 html:not(.js) .loader{display:none !important}
 html:not(.js) body.loading{overflow:auto}
+html:not(.js) .hero__tag,
 html:not(.js) .reveal,
 html:not(.js) .reveal-img,
 html:not(.js) .stagger>*,
@@ -555,8 +573,10 @@ html:not(.js) .works__track{flex-wrap:wrap}
   *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
   .loader{display:none}
   body.loading{overflow:auto}
-  body.loading .hero__stage>*{opacity:1}
+  body.loading .hero__stage>*{visibility:visible}
   .reveal,.reveal-img,.stagger>*{opacity:1;transform:none;clip-path:none}
+  .loader__sub span{transform:none}
+  .hero__tag{clip-path:none}
   .word__in,.hero h1 .ch{transform:none}
   .hero__ficha{clip-path:none}
   .hero__retrato img{transform:none}

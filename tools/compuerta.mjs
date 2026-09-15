@@ -212,7 +212,19 @@ async function contraste(page, donde) {
       if (!t) continue;
       const b = el.getBoundingClientRect();
       if (b.width < 4 || b.height < 4) continue;
-      const f = rgb(cs.color), g = fondoDe(el);
+      const f = rgb(cs.color);
+      let g = fondoDe(el);
+      // Detrás de TODO hay un plano azul animado. Un texto que pasa contra
+      // el fondo base puede no pasar contra una línea del plano: si el
+      // elemento vive sobre dos superficies, son dos medidas, no una.
+      const plano = document.querySelector('.bg-plan svg');
+      const sobreElPlano = plano && !el.closest('.works, .footer, .pano, .loader');
+      if (sobreElPlano) {
+        const a = Number(getComputedStyle(plano).opacity || 1);
+        const linea = [93, 146, 189]; // --blue-line
+        const mezcla = linea.map((c, i) => c * a + g[i] * (1 - a));
+        if (lum(mezcla) > lum(g)) g = mezcla; // nos quedamos con el peor caso
+      }
       const L1 = lum(f), L2 = lum(g);
       const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
       const px = parseFloat(cs.fontSize);
@@ -252,6 +264,55 @@ async function retratoEnBN(page, donde) {
     return suma / n;
   }, buf.toString('base64'));
   if (sat > 14) falla(donde, `el retrato de portada sale a color (saturación media ${sat.toFixed(1)}; máximo 14)`);
+}
+
+/* --------- comprobación 6 bis: el texto sobre la foto tiene suelo propio ---------
+   La banda panorámica pone una cita ENCIMA de una fotografía. Medirlo con
+   la foto de hoy es firmar un contrato con todas las fotos de mañana. Se
+   mide en PÍXELES el fondo realmente pintado (capa + foto) en la franja
+   lateral de la banda, que es fondo puro, y se exige contraste contra el
+   color del texto. */
+async function sueloBajoLaCita(page, donde) {
+  const cita = page.locator('.pano__quote blockquote').first();
+  if (!(await cita.count())) { avisa(donde, 'no hay banda panorámica que medir'); return; }
+  await cita.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400);
+  const caja = await page.locator('.pano').first().boundingBox();
+  const color = await cita.evaluate((el) => getComputedStyle(el).color);
+  const franja = {
+    x: Math.round(caja.x + caja.width * 0.02),
+    y: Math.round(Math.max(caja.y, 0) + 10),
+    width: Math.max(8, Math.round(caja.width * 0.06)),
+    height: Math.round(Math.min(caja.height - 20, 400)),
+  };
+  const buf = await page.screenshot({ clip: franja });
+  const peor = await page.evaluate(async (b64) => {
+    const img = new Image();
+    img.src = 'data:image/png;base64,' + b64;
+    await img.decode();
+    const cv = document.createElement('canvas');
+    cv.width = img.width; cv.height = img.height;
+    const cx = cv.getContext('2d');
+    cx.drawImage(img, 0, 0);
+    const d = cx.getImageData(0, 0, cv.width, cv.height).data;
+    const lum = (r, g, b) => {
+      const f = (x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; };
+      return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+    };
+    let max = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const L = lum(d[i], d[i + 1], d[i + 2]);
+      if (L > max) max = L;
+    }
+    return max;
+  }, buf.toString('base64'));
+  const [r, g, b] = (color.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+  const f = (x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; };
+  const Ltxt = 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  const ratio = (Math.max(Ltxt, peor) + 0.05) / (Math.min(Ltxt, peor) + 0.05);
+  // la cita es texto grande: el mínimo es 3:1, pero se pide 4.5 de margen
+  // porque la foto que irá ahí mañana puede ser más clara que ésta
+  if (ratio < 4.5) falla(donde, `la cita sobre la foto queda a ${ratio.toFixed(2)}:1 contra el punto más claro de su fondo (mínimo 4.5 para que aguante otra foto)`);
 }
 
 /* --------- comprobación 7: aire muerto antes de "Obra selecta" --------- */
@@ -367,6 +428,7 @@ for (const v of ANCHOS) {
   await corre('contraste', () => contraste(page, donde));
   await corre('retrato en B/N', () => retratoEnBN(page, donde));
   await corre('sin backdrop-filter', () => sinBackdropFilter(page, donde));
+  await corre('suelo bajo la cita', () => sueloBajoLaCita(page, donde));
   await corre('sin aire muerto', () => sinAireMuerto(page, donde));
 
   if (errores.length) falla(donde, `errores de consola: ${errores.slice(0, 4).join(' | ')}`);

@@ -7,6 +7,8 @@
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var finePointer = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
   var lerp = function (a, b, n) { return a + (b - a) * n; };
+  // Todo lo que quiera correr por cuadro se apunta aquí; el bucle es uno.
+  var tareasPorCuadro = [];
 
   /* ---------- 1. Header ---------- */
   var header = document.querySelector('.site-header');
@@ -122,6 +124,10 @@
     if (el.__revealed) return;
     el.__revealed = true;
     el.classList.add('in', 'is-in');
+    // El texto se destapa con máscara (clip-path), nunca con opacidad. Pero
+    // un clip-path permanente recortaría el anillo de foco de un campo o el
+    // desplazamiento de un enlace al pasar el ratón: se retira al terminar.
+    setTimeout(function () { el.classList.add('destapada'); }, 1100);
   }
   var pxEls = [].slice.call(document.querySelectorAll('[data-parallax]'));
   var heroPlan = document.querySelector('.hero__plan svg');
@@ -234,7 +240,11 @@
   // de navegadores que no los disparan de forma fiable).
   if (reduceMotion) revealEls.forEach(activate);
   frame();
-  (function rafLoop() { frame(); requestAnimationFrame(rafLoop); })();
+  (function rafLoop() {
+    frame();
+    for (var t = 0; t < tareasPorCuadro.length; t++) tareasPorCuadro[t]();
+    requestAnimationFrame(rafLoop);
+  })();
   window.addEventListener('load', function () { setupWorks(); frame(); });
 
   /* ---------- 8. Lightbox de obras ---------- */
@@ -279,11 +289,12 @@
         if (label && label.classList.contains('show')) label.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0) translate(-50%,-50%) scale(1)';
         ring.style.opacity = dot.style.opacity = '1';
       });
-      (function ringLoop() {
+      // Un solo requestAnimationFrame para toda la página: dos bucles
+      // compiten por el mismo cuadro y el scroll se siente a tirones.
+      tareasPorCuadro.push(function () {
         rx = lerp(rx, mx, 0.17); ry = lerp(ry, my, 0.17);
         ring.style.transform = 'translate3d(' + rx + 'px,' + ry + 'px,0) translate(-50%,-50%)';
-        requestAnimationFrame(ringLoop);
-      })();
+      });
       document.addEventListener('mouseleave', function () { ring.style.opacity = dot.style.opacity = '0'; });
       document.querySelectorAll('a, button, .filter').forEach(function (el) {
         el.addEventListener('mouseenter', function () { ring.classList.add('is-hover'); });
