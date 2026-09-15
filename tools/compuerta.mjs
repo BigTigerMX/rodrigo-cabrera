@@ -459,6 +459,47 @@ async function sinCorreosInternos(page, donde) {
   }
 }
 
+/* --------- comprobación 7 quinquies: se puede LLEGAR a toda la obra ---------
+   La galería tiene dos mecanismos: carril horizontal en escritorio y pila
+   en el teléfono. Comprobar el mecanismo sería comprobar el CÓMO; lo que le
+   importa al visitante es poder llegar a la última obra. Así que se recorre
+   la sección de arriba abajo y se anota qué obras llegaron a verse. */
+async function galeriaCompleta(page, donde) {
+  const total = await page.locator('.wpanel__media').count();
+  if (!total) { falla(donde, 'no hay obras en la galería'); return; }
+  await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; });
+  const tramo = await page.evaluate(() => {
+    const s = document.querySelector('.works');
+    return { top: s.getBoundingClientRect().top + window.scrollY, alto: s.offsetHeight };
+  });
+  const vistas = new Set();
+  const pasos = 24;
+  for (let i = 0; i <= pasos; i++) {
+    await page.evaluate((y) => window.scrollTo(0, y), tramo.top + (tramo.alto * i) / pasos - 100);
+    await page.waitForTimeout(120);
+    const enPantalla = await page.evaluate(() => {
+      const out = [];
+      const vw = window.innerWidth, vh = window.innerHeight;
+      document.querySelectorAll('.wpanel__media').forEach((el, i) => {
+        const b = el.getBoundingClientRect();
+        // se cuenta sólo si se ve un pedazo de verdad, no un píxel de borde
+        const anchoVisible = Math.min(b.right, vw) - Math.max(b.left, 0);
+        const altoVisible = Math.min(b.bottom, vh) - Math.max(b.top, 0);
+        if (anchoVisible > b.width * 0.5 && altoVisible > b.height * 0.5) out.push(i);
+      });
+      return out;
+    });
+    enPantalla.forEach((n) => vistas.add(n));
+    if (vistas.size === total) break;
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+  if (vistas.size < total) {
+    const faltan = [];
+    for (let i = 0; i < total; i++) if (!vistas.has(i)) faltan.push(i + 1);
+    falla(donde, `recorriendo la sección de obra sólo se llega a ver ${vistas.size} de ${total} obras; no hay manera de llegar a la(s) ${faltan.join(', ')}`);
+  }
+}
+
 /* --------- comprobación 8: sin backdrop-filter (regla de la casa) --------- */
 async function sinBackdropFilter(page, donde) {
   const r = await page.evaluate(() => {
@@ -543,6 +584,7 @@ for (const v of ANCHOS) {
   await corre('suelo bajo la cita', () => sueloBajoLaCita(page, donde));
   await corre('anclas vivas', () => anclasVivas(page, donde));
   await corre('sin correos internos', () => sinCorreosInternos(page, donde));
+  await corre('se llega a toda la obra', () => galeriaCompleta(page, donde));
   await corre('el formulario se comporta', () => formularioSeComporta(page, donde));
   await corre('sin aire muerto', () => sinAireMuerto(page, donde));
 

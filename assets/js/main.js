@@ -98,7 +98,13 @@
   var works = document.querySelector('.works');
   var track = document.querySelector('.works__track');
   var worksBar = document.querySelector('.works__progress i');
-  var horizontal = false;
+  // null = "todavía no se ha decidido". Empezaba en false, y como en un
+  // teléfono lo que se quiere TAMBIÉN es false, la primera llamada creía que
+  // no había nada que cambiar y salía antes de poner la clase .stacked: la
+  // galería se quedaba en carril horizontal sin manera de desplazarlo y en
+  // el teléfono NO SE VEÍA NI UNA SOLA OBRA. En escritorio no se notaba
+  // nunca, porque ahí lo que se quiere es true y sí entraba.
+  var horizontal = null;
   function setupWorks() {
     if (!works || !track) return;
     var want = window.innerWidth > 900 && !reduceMotion;
