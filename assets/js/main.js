@@ -351,27 +351,65 @@
   if (cform) {
     var MAIL_ENDPOINT = 'https://formsubmit.co/ajax/luis.santi.tiger@gmail.com';
     var MAIL_CC = 'arquitecto@rodrigo-cabrera.com';
+    var note = cform.querySelector('.cf-note');
+    var campos = [].slice.call(cform.querySelectorAll('input[required], textarea[required]'));
+
+    function aviso(texto, clase) {
+      if (!note) return;
+      note.textContent = texto;
+      note.className = 'cf-note' + (clase ? ' cf-note--' + clase : '');
+    }
+    function marca(campo, mal) {
+      var caja = campo.closest('.cf-field');
+      if (caja) caja.classList.toggle('cf-mal', !!mal);
+      campo.setAttribute('aria-invalid', mal ? 'true' : 'false');
+    }
+    // El navegador ya sabe si un campo es válido: se le pregunta a él en vez
+    // de reescribir una expresión regular de correos, que siempre sale mal.
+    function revisa() {
+      var primerMalo = null;
+      campos.forEach(function (campo) {
+        var mal = !campo.checkValidity();
+        marca(campo, mal);
+        if (mal && !primerMalo) primerMalo = campo;
+      });
+      return primerMalo;
+    }
+    campos.forEach(function (campo) {
+      campo.addEventListener('input', function () { if (campo.checkValidity()) marca(campo, false); });
+    });
+
     cform.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (!cform.checkValidity()) { cform.reportValidity(); return; }
-      var nombre = cform.querySelector('#c-n').value.trim();
-      var correo = cform.querySelector('#c-e').value.trim();
-      var mensaje = cform.querySelector('#c-m').value.trim();
-      var note = cform.querySelector('.cf-note');
+      // trampa para robots: si viene llena, se agradece y no se envía nada
+      var trampa = cform.querySelector('.cf-trampa');
+      if (trampa && trampa.value) { aviso('Gracias por tu mensaje.', 'ok'); cform.reset(); return; }
+
+      var malo = revisa();
+      if (malo) {
+        aviso(malo.type === 'email' && malo.value
+          ? 'Ese correo no se ve completo: revisa que tenga @ y dominio.'
+          : 'Faltan datos: llena nombre, correo y mensaje.', 'error');
+        malo.focus();
+        return;
+      }
+
       var btn = cform.querySelector('button[type="submit"]');
-      btn.disabled = true;
       var btnSpan = btn.querySelector('span');
       var btnText = btnSpan.textContent;
+      btn.disabled = true;
       btnSpan.textContent = 'Enviando…';
+      aviso('', '');
+
       fetch(MAIL_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          Nombre: nombre,
-          Correo: correo,
-          Mensaje: mensaje,
-          _subject: 'Nuevo mensaje desde rodrigo-cabrera — ' + nombre,
-          _replyto: correo,
+          Nombre: cform.querySelector('#c-n').value.trim(),
+          Correo: cform.querySelector('#c-e').value.trim(),
+          Mensaje: cform.querySelector('#c-m').value.trim(),
+          _subject: 'Nuevo mensaje desde rodrigo-cabrera — ' + cform.querySelector('#c-n').value.trim(),
+          _replyto: cform.querySelector('#c-e').value.trim(),
           _cc: MAIL_CC,
           _template: 'table',
           _captcha: 'false'
@@ -381,10 +419,11 @@
         return r.json();
       }).then(function (j) {
         if (!j || String(j.success) !== 'true') throw new Error(j && j.message);
-        if (note) note.textContent = 'Gracias por tu mensaje. Te respondo muy pronto.';
+        aviso('Gracias por tu mensaje. Te respondo muy pronto.', 'ok');
         cform.reset();
+        campos.forEach(function (c) { marca(c, false); });
       }).catch(function () {
-        if (note) note.textContent = 'No se pudo enviar. Escríbeme a ' + MAIL_CC + '.';
+        aviso('No se pudo enviar. Escríbeme directo a ' + MAIL_CC + '.', 'error');
       }).finally(function () {
         btn.disabled = false;
         btnSpan.textContent = btnText;

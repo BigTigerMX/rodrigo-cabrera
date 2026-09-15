@@ -7,7 +7,7 @@
 <title>Rodrigo Cabrera · Arquitecto</title>
 <meta name="description" content="Rodrigo Cabrera, arquitecto. Proyecta y construye espacios residenciales en México donde la piedra, la madera y la luz conviven. Fundador de ARCO Arquitectura & Construcción.">
 <link rel="icon" href="assets/img/favicon.png">
-<link rel="stylesheet" href="assets/css/style.css?v=5">
+<link rel="stylesheet" href="assets/css/style.css?v=6">
 </head>
 <body class="loading">
 
@@ -406,35 +406,85 @@
       </a>
     </div>
 
-    <form class="contact__form reveal" data-d="2" action="https://formsubmit.co/luis.santi.tiger@gmail.com" method="POST">
-      <div class="cf-row">
-        <div class="cf-field"><input id="c-n" name="Nombre" type="text" placeholder=" " required><label for="c-n">Nombre</label></div>
-        <div class="cf-field"><input id="c-e" name="Correo" type="email" placeholder=" " required><label for="c-e">Correo</label></div>
+    <!-- La solicitud va dentro de una hoja: antes los campos flotaban
+         sueltos sobre el fondo y las líneas del plano los cruzaban por
+         encima, que es justo lo que hace que un formulario parezca roto. -->
+    <div class="hoja reveal" data-d="2">
+      <div class="hoja__cab">
+        <span class="hoja__rot">Solicitud de proyecto</span>
+        <span class="hoja__folio">FORM&nbsp;·&nbsp;01</span>
       </div>
-      <div class="cf-field"><textarea id="c-m" name="Mensaje" rows="3" placeholder=" " required></textarea><label for="c-m">Cuéntame tu proyecto</label></div>
-      <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
-      <div class="cf-actions">
-        <button class="btn btn--light" type="submit"><span>Enviar mensaje</span><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
-        <p class="cf-note" role="status"></p>
+      <div class="hoja__cuerpo">
+        <form class="contact__form" action="https://formsubmit.co/luis.santi.tiger@gmail.com" method="POST" novalidate>
+          <div class="cf-row">
+            <div class="cf-field">
+              <input id="c-n" name="Nombre" type="text" placeholder=" " required autocomplete="name" maxlength="80">
+              <label for="c-n">Nombre</label>
+            </div>
+            <div class="cf-field">
+              <input id="c-e" name="Correo" type="email" placeholder=" " required autocomplete="email" inputmode="email" maxlength="120">
+              <label for="c-e">Correo</label>
+            </div>
+          </div>
+          <div class="cf-field">
+            <textarea id="c-m" name="Mensaje" rows="4" placeholder=" " required maxlength="1200"></textarea>
+            <label for="c-m">Cuéntame tu proyecto</label>
+          </div>
+          <input type="text" name="_honey" class="cf-trampa" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <div class="cf-actions">
+            <button class="btn btn--light" type="submit"><span>Enviar mensaje</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+            <p class="cf-note" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+        <aside class="hoja__lado">
+          <div class="hoja__dato">
+            <span class="hoja__rot">Atención</span>
+            <p>Ciudad de México — con cita previa.</p>
+          </div>
+          <div class="hoja__dato">
+            <span class="hoja__rot">Respuesta</span>
+            <p>Menos de 24 horas.</p>
+          </div>
+          <div class="hoja__dato">
+            <span class="hoja__rot">Directo</span>
+            <p><a href="mailto:arquitecto@rodrigo-cabrera.com">arquitecto@rodrigo-cabrera.com</a></p>
+          </div>
+        </aside>
       </div>
-    </form>
-
-    <div class="contact__foot">
-      <span>Ciudad de México, México — atención con cita previa.</span>
-      <span>Respuesta en menos de 24 horas.</span>
     </div>
+
   </div>
 </section>
 
 <!-- ============ FOOTER ============ -->
 <footer class="footer">
-  <div class="wrap">
-    <a href="#inicio" class="brand" aria-label="Volver arriba">
+  <!-- Cajetín: la página se cierra con el mismo recurso con que abre. Lo que
+       dice es verdad sobre la lámina, no sobre el negocio. -->
+  <div class="wrap cajetin">
+    <a href="#inicio" class="brand cajetin__marca">
       <img class="brand__mark" src="assets/img/logo.png" alt="" aria-hidden="true">
       <span class="brand__txt">Rodrigo Cabrera<small>Arquitecto</small></span>
     </a>
-    <p>© <span class="year">2026</span> Rodrigo Cabrera · Todos los derechos reservados</p>
-    <p><a href="https://bigtigermx.github.io/arco-rc/" target="_blank" rel="noopener">ARCO Arquitectura &amp; Construcción ↗</a></p>
+
+    <dl class="cajetin__datos">
+      <div><dt>Proyecto</dt><dd>Sitio personal</dd></div>
+      <div><dt>Escala</dt><dd>1:1</dd></div>
+      <div><dt>Lámina</dt><dd>01 / 01</dd></div>
+      <div><dt>Fecha</dt><dd><span class="year">2026</span></dd></div>
+    </dl>
+
+    <nav class="cajetin__nav" aria-label="Pie de página">
+      <a href="#obra">Obra</a>
+      <a href="#vision">Visión</a>
+      <a href="#arquitecto">El arquitecto</a>
+      <a href="#contacto">Contacto</a>
+      <a href="https://bigtigermx.github.io/arco-rc/" target="_blank" rel="noopener">ARCO Arquitectura &amp; Construcción ↗</a>
+    </nav>
+
+    <div class="cajetin__pie">
+      <p>© <span class="year">2026</span> Rodrigo Cabrera · Todos los derechos reservados</p>
+      <a class="cajetin__arriba" href="#inicio">Volver al inicio <span aria-hidden="true">↑</span></a>
+    </div>
   </div>
 </footer>
 
@@ -447,6 +497,6 @@
   <div class="lb-cap"></div>
 </div>
 
-<script src="assets/js/main.js?v=5"></script>
+<script src="assets/js/main.js?v=6"></script>
 </body>
 </html>

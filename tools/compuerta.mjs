@@ -204,7 +204,7 @@ async function contraste(page, donde) {
       return [12, 17, 22]; // --night
     };
     const out = [];
-    const sel = 'p, li, .hero__tag, .biglink b, .biglink small, .wpanel__info h3, .wpanel__info span, .cf-note, .footer p, .ficha__dato, .ficha__rot';
+    const sel = 'p, li, .hero__tag, .biglink b, .biglink small, .wpanel__info h3, .wpanel__info span, .cf-note, .footer p, .ficha__dato, .ficha__rot, .hoja__rot, .hoja__folio, .cajetin__datos dt, .cajetin__datos dd, .cajetin__nav a, .cajetin__arriba';
     for (const el of document.querySelectorAll(sel)) {
       const cs = getComputedStyle(el);
       if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) < 0.95) continue;
@@ -347,6 +347,90 @@ async function sinAireMuerto(page, donde) {
   if (hueco > 260) falla(donde, `hueco de ${hueco}px de aire muerto antes de "Obra selecta" (máximo 260)`);
 }
 
+/* --------- comprobación 7 bis: los enlaces internos llegan a algún lado ---------
+   Un ancla rota no se ve nunca en una captura: la página simplemente no se
+   mueve. Se comprueba contra el DOM, que es donde vive la verdad. */
+async function anclasVivas(page, donde) {
+  const rotas = await page.evaluate(() => {
+    const out = [];
+    for (const a of document.querySelectorAll('a[href^="#"]')) {
+      const id = a.getAttribute('href').slice(1);
+      if (!id) continue;
+      if (!document.getElementById(id)) out.push(`${a.textContent.trim().slice(0, 24)} → #${id}`);
+    }
+    return out;
+  });
+  for (const r of rotas) falla(donde, `enlace interno roto: ${r}`);
+}
+
+/* --------- comprobación 7 ter: el formulario se comporta ---------
+   Que el formulario EXISTA no dice nada. Lo que hay que probar es lo que
+   hace: que no recargue la página, que avise qué falta, que marque el campo
+   culpable y que diga algo distinto cuando el envío sale bien y cuando
+   falla. La red se intercepta: no se le pega al servicio real desde una
+   comprobación. */
+async function formularioSeComporta(page, donde) {
+  const form = page.locator('.contact__form');
+  if (!(await form.count())) { falla(donde, 'no hay formulario de contacto'); return; }
+
+  let peticiones = 0;
+  await page.route('**/formsubmit.co/**', async (ruta) => {
+    peticiones++;
+    await ruta.fulfill({ status: 200, contentType: 'application/json', body: '{"success":"true"}' });
+  });
+
+  const urlAntes = page.url();
+  await form.scrollIntoViewIfNeeded();
+
+  // 1) vacío: ni se envía ni se recarga, y dice qué falta
+  await page.locator('.contact__form button[type="submit"]').click();
+  await page.waitForTimeout(350);
+  if (page.url() !== urlAntes) { falla(donde, 'el formulario vacío recarga la página en vez de avisar'); return; }
+  let aviso = (await page.locator('.cf-note').textContent()).trim();
+  if (!aviso) falla(donde, 'el formulario vacío no dice nada: se envía al vacío o falla en silencio');
+  const marcados = await page.locator('.cf-field.cf-mal').count();
+  if (!marcados) falla(donde, 'el formulario vacío no marca qué campo falta');
+  const enfocado = await page.evaluate(() => document.activeElement && document.activeElement.id);
+  if (enfocado !== 'c-n') falla(donde, `el foco no salta al primer campo que falta (quedó en "${enfocado}")`);
+  if (peticiones) falla(donde, 'se envió una petición con el formulario vacío');
+
+  // 2) correo mal escrito: mensaje distinto, tampoco se envía
+  await page.fill('#c-n', 'Prueba Compuerta');
+  await page.fill('#c-e', 'esto-no-es-un-correo');
+  await page.fill('#c-m', 'Mensaje de prueba de la compuerta.');
+  await page.locator('.contact__form button[type="submit"]').click();
+  await page.waitForTimeout(350);
+  const avisoCorreo = (await page.locator('.cf-note').textContent()).trim();
+  if (!/correo/i.test(avisoCorreo)) falla(donde, `con un correo inválido el aviso no lo menciona: "${avisoCorreo}"`);
+  if (peticiones) falla(donde, 'se envió una petición con un correo inválido');
+
+  // 3) bien llenado: sale la petición, avisa que llegó y limpia
+  await page.fill('#c-e', 'cliente@ejemplo.com');
+  await page.locator('.contact__form button[type="submit"]').click();
+  await page.waitForTimeout(900);
+  if (!peticiones) falla(donde, 'con el formulario bien llenado no se envió nada');
+  aviso = (await page.locator('.cf-note').textContent()).trim();
+  const claseAviso = await page.locator('.cf-note').getAttribute('class');
+  if (!aviso || !/ok/.test(claseAviso || '')) falla(donde, `tras un envío correcto no se confirma nada (aviso: "${aviso}")`);
+  if ((await page.inputValue('#c-n')) !== '') falla(donde, 'tras enviar, el formulario conserva lo escrito');
+
+  // 4) si el servicio falla, el usuario se entera y le queda una salida
+  await page.unroute('**/formsubmit.co/**');
+  await page.route('**/formsubmit.co/**', (ruta) => ruta.fulfill({ status: 500, contentType: 'application/json', body: '{"success":"false"}' }));
+  await page.fill('#c-n', 'Prueba Compuerta');
+  await page.fill('#c-e', 'cliente@ejemplo.com');
+  await page.fill('#c-m', 'Segundo mensaje.');
+  await page.locator('.contact__form button[type="submit"]').click();
+  await page.waitForTimeout(900);
+  const avisoError = (await page.locator('.cf-note').textContent()).trim();
+  const claseError = await page.locator('.cf-note').getAttribute('class');
+  if (!/error/.test(claseError || '')) falla(donde, `cuando el envío falla no se avisa como error (aviso: "${avisoError}")`);
+  if (!/@/.test(avisoError)) falla(donde, 'el aviso de error no ofrece el correo directo como salida');
+  const btn = page.locator('.contact__form button[type="submit"]');
+  if (await btn.isDisabled()) falla(donde, 'tras un envío fallido el botón se queda bloqueado');
+  await page.unroute('**/formsubmit.co/**');
+}
+
 /* --------- comprobación 8: sin backdrop-filter (regla de la casa) --------- */
 async function sinBackdropFilter(page, donde) {
   const r = await page.evaluate(() => {
@@ -422,16 +506,22 @@ for (const v of ANCHOS) {
   };
   await corre('un solo h1', () => unSoloH1(page, donde));
   await corre('sin desborde', () => sinDesborde(page, donde));
-  await corre('palabras enteras', () => palabrasEnteras(page, donde, 'h2, .hero__tag, .biglink b, .ficha__dato, .wpanel__info h3'));
+  await corre('palabras enteras', () => palabrasEnteras(page, donde, 'h2, .hero__tag, .biglink b, .ficha__dato, .wpanel__info h3, .hoja__dato a, .cajetin__datos dd'));
   await corre('titular en un renglón', () => titularEnUnRenglon(page, donde));
   await corre('sin recorte', () => sinRecorte(page, donde, 'h1 .ln, .ficha__dato, .biglink b'));
   await corre('contraste', () => contraste(page, donde));
   await corre('retrato en B/N', () => retratoEnBN(page, donde));
   await corre('sin backdrop-filter', () => sinBackdropFilter(page, donde));
   await corre('suelo bajo la cita', () => sueloBajoLaCita(page, donde));
+  await corre('anclas vivas', () => anclasVivas(page, donde));
+  await corre('el formulario se comporta', () => formularioSeComporta(page, donde));
   await corre('sin aire muerto', () => sinAireMuerto(page, donde));
 
-  if (errores.length) falla(donde, `errores de consola: ${errores.slice(0, 4).join(' | ')}`);
+  // El 500 del paso 4 de la comprobación del formulario lo provoca ella
+  // misma (respuesta simulada del servicio de correo): ese ruido es suyo,
+  // no del sitio.
+  const propios = errores.filter((e) => !/formsubmit\.co|status of 500/i.test(e));
+  if (propios.length) falla(donde, `errores de consola: ${propios.slice(0, 4).join(' | ')}`);
 
   if (CON_FOTOS) {
     await page.screenshot({ path: `${SALIDA}/${v.nombre}-portada.png` });

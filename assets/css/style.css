@@ -69,6 +69,11 @@ a{color:inherit;text-decoration:none}
 ul{list-style:none}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 ::selection{background:var(--blue);color:#fff}
+/* Quien navega con teclado necesita ver dónde está parado. Antes el único
+   indicio era el cambio de color del borde en los campos, y los botones no
+   tenían ninguno. */
+:focus-visible{outline:2px solid var(--blue-soft);outline-offset:3px}
+.cf-field input:focus-visible,.cf-field textarea:focus-visible{outline-offset:4px}
 
 /* ---------- Utilidades ---------- */
 .wrap{width:min(var(--wide),92vw);margin-inline:auto}
@@ -385,7 +390,7 @@ body.no-scroll{overflow:hidden}
 /* =========================================================
    CONTACTO
    ========================================================= */
-.contact{position:relative;overflow:hidden}
+.contact{position:relative;overflow:hidden;padding-bottom:clamp(3rem,6vw,4.5rem)}
 .contact .eyebrow{color:#93bad2}
 .contact .eyebrow::before{background:#93bad2}
 .contact h2{
@@ -411,14 +416,34 @@ body.no-scroll{overflow:hidden}
 /* =========================================================
    FOOTER
    ========================================================= */
-.footer{background:#080c10;color:#8fa3b3;padding:2.6rem 0}
-.footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap}
+.footer{background:#080c10;color:#a9bcc9;padding:clamp(2rem,4vw,3rem) 0 2.2rem}
 .footer .brand{color:var(--paper)}
 .footer .brand__mark{filter:none}
-.footer .brand__txt small{color:#5f7688}
-.footer p{font-size:.78rem;letter-spacing:.06em}
-.footer a{color:#c6d4de}
+.footer .brand__txt small{color:var(--muted-2)}
+.footer a{color:#d4dfe7}
 .footer a:hover{color:#fff}
+
+/* Cajetín de lámina: cierra la página con el mismo recurso de la portada. */
+.cajetin{border:1px solid rgba(242,239,233,.14);display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,auto);grid-template-areas:"marca datos" "nav nav" "pie pie"}
+.cajetin__marca{grid-area:marca;padding:1.1rem 1.4rem;align-self:center}
+.cajetin__datos{grid-area:datos;display:flex;flex-wrap:wrap}
+.cajetin__datos>div{padding:.85rem 1.4rem;border-left:1px solid rgba(242,239,233,.14);min-width:7.5rem}
+.cajetin__datos dt{font-family:var(--disp);font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted-2)}
+.cajetin__datos dd{font-family:var(--disp);font-size:.82rem;font-weight:500;color:var(--paper);margin-top:.3rem}
+.cajetin__nav{grid-area:nav;display:flex;flex-wrap:wrap;gap:.4rem 2rem;
+  padding:.9rem 1.4rem;border-top:1px solid rgba(242,239,233,.14)}
+.cajetin__nav a{font-family:var(--disp);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;padding:.25rem 0}
+.cajetin__pie{grid-area:pie;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;
+  padding:.9rem 1.4rem;border-top:1px solid rgba(242,239,233,.14)}
+.cajetin__pie p{font-size:.78rem;letter-spacing:.04em}
+.cajetin__arriba{font-family:var(--disp);font-size:.62rem;letter-spacing:.26em;text-transform:uppercase}
+@media(max-width:760px){
+  .cajetin{grid-template-columns:1fr;grid-template-areas:"marca" "datos" "nav" "pie"}
+  .cajetin__datos{border-top:1px solid rgba(242,239,233,.14)}
+  .cajetin__datos>div{flex:1 1 42%;border-left:0;border-right:1px solid rgba(242,239,233,.14)}
+  .cajetin__marca{padding-bottom:.4rem}
+}
 
 /* =========================================================
    LIGHTBOX
@@ -443,8 +468,28 @@ body.no-scroll{overflow:hidden}
 }
 .sec-title em{font-style:normal;color:var(--blue-soft)}
 
-.contact__form{margin-top:3.2rem;display:grid;gap:1.9rem;max-width:720px}
+/* ---------- Hoja de solicitud ---------- */
+.hoja{
+  margin-top:3.4rem;border:1px solid rgba(242,239,233,.16);
+  /* superficie propia y opaca: el plano azul del fondo pasaba por encima de
+     los campos y el formulario parecía desarmado */
+  background:#0a0e13;
+}
+.hoja__cab{display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:.85rem 1.4rem;border-bottom:1px solid rgba(242,239,233,.16)}
+.hoja__rot{font-family:var(--disp);font-size:.58rem;letter-spacing:.34em;text-transform:uppercase;color:var(--blue-soft)}
+.hoja__folio{font-family:var(--disp);font-size:.58rem;letter-spacing:.3em;color:var(--muted-2)}
+.hoja__cuerpo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,17rem);align-items:start}
+.hoja__lado{border-left:1px solid rgba(242,239,233,.16);padding:1.8rem 1.4rem;display:grid;gap:1.5rem;align-content:start}
+.hoja__dato p{font-size:.92rem;color:var(--muted);margin-top:.35rem;line-height:1.5}
+/* El correo cabe entero en su columna: partido en dos renglones
+   ("arquitecto@rodrigo-" / "cabrera.com") se lee como un error. */
+.hoja__dato a{border-bottom:1px solid rgba(147,186,210,.4);font-size:.8rem;letter-spacing:.01em}
+.hoja__dato a:hover{border-bottom-color:var(--blue-soft)}
+
+.contact__form{padding:1.8rem 1.4rem;display:grid;gap:1.9rem}
 .cf-row{display:grid;grid-template-columns:1fr 1fr;gap:1.9rem}
+.cf-trampa{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 .cf-field{position:relative}
 .cf-field input,.cf-field textarea{
   width:100%;background:transparent;border:0;border-bottom:1px solid #223140;
@@ -463,7 +508,21 @@ body.no-scroll{overflow:hidden}
 .cf-actions{display:flex;align-items:center;gap:1.6rem;flex-wrap:wrap}
 .cf-actions .btn[disabled]{opacity:.5;pointer-events:none}
 .cf-note{font-size:.86rem;color:#9db2c2;letter-spacing:.04em}
-@media(max-width:760px){.cf-row{grid-template-columns:1fr}}
+.cf-note:empty{display:none}
+/* El aviso dice qué pasó también por color, pero el color nunca es lo único:
+   el texto se entiende igual en escala de grises. */
+.cf-note--ok{color:#a8d5b5}
+.cf-note--error{color:#f0b7a6}
+.cf-field.cf-mal input,.cf-field.cf-mal textarea{border-bottom-color:#f0b7a6}
+@media(max-width:900px){
+  .hoja__cuerpo{grid-template-columns:1fr}
+  .hoja__lado{border-left:0;border-top:1px solid rgba(242,239,233,.16);
+    grid-template-columns:1fr 1fr;gap:1.2rem 1.6rem}
+}
+@media(max-width:760px){
+  .cf-row{grid-template-columns:1fr}
+  .hoja__lado{grid-template-columns:1fr}
+}
 
 .contact__plan{position:absolute;right:max(3vw,1.5rem);top:8rem;width:min(24vw,260px);opacity:.5;pointer-events:none}
 .contact__plan svg{width:100%;height:auto}
