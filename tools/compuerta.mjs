@@ -433,6 +433,20 @@ async function formularioSeComporta(page, donde) {
   }
   const btn = page.locator('.contact__form button[type="submit"]');
   if (await btn.isDisabled()) falla(donde, 'tras un envío fallido el botón se queda bloqueado');
+  // Lo que más duele de un formulario: escribir un párrafo, fallar el envío
+  // y encontrarlo vacío. Si falla, lo escrito se queda donde está.
+  if ((await page.inputValue('#c-n')) !== 'Prueba Compuerta' || (await page.inputValue('#c-m')) !== 'Segundo mensaje.') {
+    falla(donde, 'tras un envío fallido el formulario borró lo que la persona había escrito');
+  }
+  // El envío sin JavaScript manda el formulario de verdad: sin _next, quien
+  // no tenga JS termina en la página genérica del servicio de correo.
+  const ajustes = await page.evaluate(() => {
+    const f = document.querySelector('.contact__form');
+    const v = (n) => { const e = f.querySelector(`[name="${n}"]`); return e ? e.value : null; };
+    return { next: v('_next'), captcha: v('_captcha'), accion: f.getAttribute('action') };
+  });
+  if (!ajustes.next || !/^https?:\/\//.test(ajustes.next)) falla(donde, 'el formulario sin JavaScript no tiene _next: el visitante acaba en la página del servicio de correo');
+  if (ajustes.captcha !== 'false') falla(donde, `_captcha del envío sin JavaScript vale "${ajustes.captcha}" y no coincide con el envío por JS`);
   await page.unroute('**/formsubmit.co/**');
 }
 

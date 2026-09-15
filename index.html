@@ -7,7 +7,7 @@
 <title>Rodrigo Cabrera · Arquitecto</title>
 <meta name="description" content="Rodrigo Cabrera, arquitecto. Proyecta y construye espacios residenciales en México donde la piedra, la madera y la luz conviven. Fundador de ARCO Arquitectura & Construcción.">
 <link rel="icon" href="assets/img/favicon.png">
-<link rel="stylesheet" href="assets/css/style.css?v=7">
+<link rel="stylesheet" href="assets/css/style.css?v=8">
 </head>
 <body class="loading">
 
@@ -431,6 +431,16 @@
             <label for="c-m">Cuéntame tu proyecto</label>
           </div>
           <input type="text" name="_honey" class="cf-trampa" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <!-- Ajustes del servicio de correo para el envío SIN JavaScript (el
+               formulario se manda de verdad, no por fetch). Con JS estos
+               mismos valores viajan en el cuerpo de la petición.
+               _next es la URL publicada, comprobada contra el sitio en vivo:
+               sin ella, quien envíe sin JS acaba en la página genérica del
+               servicio en vez de volver aquí. -->
+          <input type="hidden" name="_subject" value="Nuevo mensaje desde rodrigo-cabrera.com">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_next" value="https://bigtigermx.github.io/rodrigo-cabrera/#contacto">
           <div class="cf-actions">
             <button class="btn btn--light" type="submit"><span>Enviar mensaje</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
             <p class="cf-note" role="status" aria-live="polite"></p>
