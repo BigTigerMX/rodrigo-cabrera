@@ -191,7 +191,23 @@ async function contraste(page, donde) {
       const v = c.map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; });
       return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
     };
-    const rgb = (s) => (s.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+    // Acepta rgb()/rgba() y también #rrggbb: las variables de la paleta
+    // están en hexadecimal, y sacarles "números" con una expresión regular
+    // devolvía basura silenciosamente (de #9CBBD2 salían 9 y 2).
+    const rgb = (s) => {
+      s = String(s || '').trim();
+      const hex = s.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+      if (hex) {
+        const h = hex[1].length === 3 ? hex[1].replace(/./g, (c) => c + c) : hex[1];
+        return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+      }
+      return (s.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+    };
+    // El fondo de respaldo se LEE de la página, no se escribe a mano: con el
+    // color cableado, al pasar el sitio de noche a papel la comprobación
+    // habría seguido midiendo contra un fondo que ya no existe — la trampa
+    // de medir contra la superficie equivocada, pero en la compuerta.
+    const fondoBase = rgb(getComputedStyle(document.body).backgroundColor);
     const fondoDe = (el) => {
       let n = el;
       while (n && n !== document.documentElement) {
@@ -201,7 +217,7 @@ async function contraste(page, donde) {
         if (c.length === 3 && a > 0.6) return c;
         n = n.parentElement;
       }
-      return [12, 17, 22]; // --night
+      return fondoBase.length === 3 ? fondoBase : [255, 255, 255];
     };
     const out = [];
     const sel = 'p, li, .hero__tag, .biglink b, .biglink small, .wpanel__info h3, .wpanel__info span, .cf-note, .footer p, .ficha__dato, .ficha__rot, .hoja__rot, .hoja__folio, .cajetin__datos dt, .cajetin__datos dd, .cajetin__nav a, .cajetin__arriba';
@@ -221,9 +237,18 @@ async function contraste(page, donde) {
       const sobreElPlano = plano && !el.closest('.works, .footer, .pano, .loader');
       if (sobreElPlano) {
         const a = Number(getComputedStyle(plano).opacity || 1);
-        const linea = [93, 146, 189]; // --blue-line
-        const mezcla = linea.map((c, i) => c * a + g[i] * (1 - a));
-        if (lum(mezcla) > lum(g)) g = mezcla; // nos quedamos con el peor caso
+        // el color de la línea también se lee de la página
+        const linea = rgb(getComputedStyle(document.documentElement).getPropertyValue('--blue-line').trim() || 'rgb(93,146,189)');
+        if (linea.length === 3) {
+          const mezcla = linea.map((c, i) => c * a + g[i] * (1 - a));
+          // Peor caso = el que da MENOS contraste, sea más claro o más
+          // oscuro. Antes se suponía texto claro sobre fondo oscuro y se
+          // tomaba siempre la mezcla más clara; sobre papel eso elegía el
+          // caso bueno y dejaba pasar el malo.
+          const ratio = (A, B) => (Math.max(A, B) + 0.05) / (Math.min(A, B) + 0.05);
+          const Lt = lum(rgb(cs.color));
+          if (ratio(Lt, lum(mezcla)) < ratio(Lt, lum(g))) g = mezcla;
+        }
       }
       const L1 = lum(f), L2 = lum(g);
       const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
@@ -514,6 +539,44 @@ async function galeriaCompleta(page, donde) {
   }
 }
 
+/* --------- comprobación 7 sexies: el botón se lee TAMBIÉN al pasarle el cursor ---------
+   Los botones se rellenan de color al pasar el ratón y la letra cambia a la
+   vez. Si el color de la letra y el del relleno coinciden, el botón se queda
+   mudo justo cuando lo estás usando, y eso no se ve en una captura en
+   reposo. Se lee el color real de la letra y el del relleno (::after). */
+async function botonesAlPasarElCursor(page, donde) {
+  // Se pasa el cursor de verdad y se mide lo que queda pintado.
+  const lum = (c) => {
+    const v = c.map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; });
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  };
+  const rgb = (s) => (String(s).match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+  const botones = await page.locator('.btn, .nav__cta').all();
+  const yaVisto = new Set();
+  for (const b of botones) {
+    const clase = (await b.getAttribute('class')) || 'nav__cta';
+    if (yaVisto.has(clase)) continue;
+    yaVisto.add(clase);
+    if (!(await b.isVisible())) continue;
+    await b.scrollIntoViewIfNeeded().catch(() => {});
+    await b.hover({ force: true }).catch(() => {});
+    await page.waitForTimeout(650); // el relleno tarda .5 s en subir
+    const medida = await b.evaluate((el) => ({
+      color: getComputedStyle(el).color,
+      relleno: getComputedStyle(el, '::after').backgroundColor,
+      transform: getComputedStyle(el, '::after').transform,
+      texto: el.textContent.trim().slice(0, 24),
+    }));
+    const f = rgb(medida.color), g = rgb(medida.relleno);
+    if (f.length !== 3 || g.length !== 3) continue;
+    const ratio = (Math.max(lum(f), lum(g)) + 0.05) / (Math.min(lum(f), lum(g)) + 0.05);
+    if (ratio < 3) {
+      falla(donde, `el botón "${medida.texto}" se queda ilegible al pasar el cursor: letra ${medida.color} sobre relleno ${medida.relleno} (${ratio.toFixed(2)}:1)`);
+    }
+  }
+  await page.mouse.move(0, 0);
+}
+
 /* --------- comprobación 8: sin backdrop-filter (regla de la casa) --------- */
 async function sinBackdropFilter(page, donde) {
   const r = await page.evaluate(() => {
@@ -599,6 +662,7 @@ for (const v of ANCHOS) {
   await corre('anclas vivas', () => anclasVivas(page, donde));
   await corre('sin correos internos', () => sinCorreosInternos(page, donde));
   await corre('se llega a toda la obra', () => galeriaCompleta(page, donde));
+  await corre('botones legibles al pasar el cursor', () => botonesAlPasarElCursor(page, donde));
   await corre('el formulario se comporta', () => formularioSeComporta(page, donde));
   await corre('sin aire muerto', () => sinAireMuerto(page, donde));
 
@@ -609,8 +673,12 @@ for (const v of ANCHOS) {
   if (propios.length) falla(donde, `errores de consola: ${propios.slice(0, 4).join(' | ')}`);
 
   if (CON_FOTOS) {
+    // Las comprobaciones dejan la página donde acabaron (llenando el
+    // formulario, recorriendo la galería): sin volver arriba, la "portada"
+    // salía siendo el formulario a medio llenar.
+    await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, 0); });
+    await page.waitForTimeout(500);
     await page.screenshot({ path: `${SALIDA}/${v.nombre}-portada.png` });
-    await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: `${SALIDA}/${v.nombre}-completa.png`, fullPage: true });
   }
   await page.close();
